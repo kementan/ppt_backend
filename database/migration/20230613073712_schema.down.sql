@@ -1,0 +1,2 @@
+DROP TABLE IF EXISTS ppt_levels;
+DROP TABLE IF EXISTS ppt_users;
