@@ -4,7 +4,7 @@ network:
 getdb: 
 	docker pull postgres:15.3
 initdb: 
-	docker run --network ppt-network --name 	postgres15.3 -p 5432:5432 -e POSTGRES_USER=root -e POSTGRES_PASSWORD=11P0rT4LP3rT4N14N99 -d postgres:15.3
+	docker run --network ppt-network --name postgres15.3 -p 5432:5432 -e POSTGRES_USER=root -e POSTGRES_PASSWORD=11P0rT4LP3rT4N14N99 -d postgres:15.3
 createdb: 
 	docker exec -it postgres15.3 createdb --username=root --owner=root ppt_database
 dropdb: 
