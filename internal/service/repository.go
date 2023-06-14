@@ -1,4 +1,4 @@
-package role
+package service
 
 import (
 	"context"
@@ -8,10 +8,10 @@ import (
 )
 
 type (
-	RoleRepository interface {
-		Create(ctx context.Context, arg RoleCreate) (RoleResponse, error)
-		Read(ctx context.Context) ([]RoleResponse, error)
-		Update(ctx context.Context, id string, arg RoleUpdate) (RoleResponse, error)
+	ServiceRepository interface {
+		Create(ctx context.Context, arg ServiceCreate) (ServiceResponse, error)
+		Read(ctx context.Context) ([]ServiceResponse, error)
+		Update(ctx context.Context, id string, arg ServiceUpdate) (ServiceResponse, error)
 		Delete(ctx context.Context, id string) error
 	}
 
@@ -20,14 +20,14 @@ type (
 	}
 )
 
-func NewRepository(db *sql.DB) RoleRepository {
+func NewRepository(db *sql.DB) ServiceRepository {
 	return &repository{
 		db: db,
 	}
 }
 
-func (q *repository) Create(ctx context.Context, arg RoleCreate) (RoleResponse, error) {
-	var i RoleResponse
+func (q *repository) Create(ctx context.Context, arg ServiceCreate) (ServiceResponse, error) {
+	var i ServiceResponse
 
 	query := `
 	INSERT INTO ` + table + ` (
@@ -45,7 +45,7 @@ func (q *repository) Create(ctx context.Context, arg RoleCreate) (RoleResponse, 
 	return i, err
 }
 
-func (q *repository) Read(ctx context.Context) ([]RoleResponse, error) {
+func (q *repository) Read(ctx context.Context) ([]ServiceResponse, error) {
 	query := `
 	SELECT id, name, created_at, updated_at
 	FROM ` + table + ` ORDER BY id`
@@ -57,10 +57,10 @@ func (q *repository) Read(ctx context.Context) ([]RoleResponse, error) {
 
 	defer rows.Close()
 
-	items := []RoleResponse{}
+	items := []ServiceResponse{}
 
 	for rows.Next() {
-		var r RoleResponse
+		var r ServiceResponse
 		var enc_id string
 
 		if err := rows.Scan(
@@ -89,8 +89,8 @@ func (q *repository) Read(ctx context.Context) ([]RoleResponse, error) {
 	return items, nil
 }
 
-func (q *repository) Update(ctx context.Context, id string, arg RoleUpdate) (RoleResponse, error) {
-	var r RoleResponse
+func (q *repository) Update(ctx context.Context, id string, arg ServiceUpdate) (ServiceResponse, error) {
+	var r ServiceResponse
 	decryptedID, _ := helper.Decrypt(id)
 
 	query := `

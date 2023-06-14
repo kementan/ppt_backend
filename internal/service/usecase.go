@@ -1,4 +1,4 @@
-package role
+package service
 
 import (
 	"database/sql"
@@ -9,7 +9,7 @@ import (
 )
 
 type (
-	RoleUseCase interface {
+	ServiceUseCase interface {
 		Create(ctx *gin.Context)
 		Read(ctx *gin.Context)
 		Update(ctx *gin.Context)
@@ -17,24 +17,24 @@ type (
 	}
 
 	useCase struct {
-		repo RoleRepository
+		repo ServiceRepository
 	}
 )
 
-func NewUseCase(repo RoleRepository) RoleUseCase {
+func NewUseCase(repo ServiceRepository) ServiceUseCase {
 	return &useCase{
 		repo: repo,
 	}
 }
 
 func (uc *useCase) Create(ctx *gin.Context) {
-	var req RoleRequest
+	var req ServiceRequest
 	if err := ctx.ShouldBindJSON(&req); err != nil {
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
 		return
 	}
 
-	arg := RoleCreate{
+	arg := ServiceCreate{
 		Name:      req.Name,
 		CreatedAt: time.Now(),
 	}
@@ -59,14 +59,14 @@ func (uc *useCase) Read(ctx *gin.Context) {
 }
 
 func (uc *useCase) Update(ctx *gin.Context) {
-	var req RoleUpdateRequest
+	var req ServiceUpdateRequest
 
 	if err := ctx.ShouldBindJSON(&req); err != nil {
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
 		return
 	}
 
-	arg := RoleUpdate{
+	arg := ServiceUpdate{
 		Name: sql.NullString{
 			String: req.Name,
 			Valid:  true,
@@ -82,7 +82,7 @@ func (uc *useCase) Update(ctx *gin.Context) {
 }
 
 func (uc *useCase) Delete(ctx *gin.Context) {
-	var req RoleDeleteRequest
+	var req ServiceDeleteRequest
 	if err := ctx.ShouldBindJSON(&req); err != nil {
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
 		return

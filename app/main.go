@@ -8,6 +8,7 @@ import (
 	_ "github.com/lib/pq"
 	"gitlab.com/xsysproject/ppt_backend/config"
 	"gitlab.com/xsysproject/ppt_backend/internal/role"
+	"gitlab.com/xsysproject/ppt_backend/internal/service"
 )
 
 func main() {
@@ -30,6 +31,10 @@ func GinServer(config config.Config, db *sql.DB) {
 	roleRepo := role.NewRepository(db)
 	roleUseCase := role.NewUseCase(roleRepo)
 	role.NewHandler(router, roleUseCase)
+
+	serviceRepo := service.NewRepository(db)
+	serviceUseCase := service.NewUseCase(serviceRepo)
+	service.NewHandler(router, serviceUseCase)
 
 	router.Run(config.HTTPServerAddress)
 }

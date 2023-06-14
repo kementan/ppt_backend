@@ -1,43 +1,43 @@
-package role
+package service
 
 import (
 	"database/sql"
 	"time"
 )
 
-var table = "ppt_roles"
+var table = "ppt_services"
 
 type (
-	RoleRequest struct {
+	ServiceRequest struct {
 		Name string `json:"name" binding:"required"`
 	}
 
-	RoleUpdateRequest struct {
+	ServiceUpdateRequest struct {
 		ID   string `json:"id" binding:"required"`
 		Name string `json:"name" binding:"required"`
 	}
 
-	RoleDeleteRequest struct {
+	ServiceDeleteRequest struct {
 		ID string `json:"id" binding:"required,min=1"`
 	}
 
-	RoleCreate struct {
+	ServiceCreate struct {
 		Name      string    `json:"name"`
 		CreatedAt time.Time `json:"created_at"`
 		UpdatedAt time.Time `json:"updated_at"`
 	}
 
-	RoleDelete struct {
+	ServiceDelete struct {
 		ID int64 `json:"id" binding:"required,min=1"`
 	}
 
-	RoleUpdate struct {
+	ServiceUpdate struct {
 		Name      sql.NullString `json:"name"`
 		CreatedAt sql.NullString `json:"created_at"`
 		UpdatedAt sql.NullString `json:"updated_at"`
 	}
 
-	RoleResponse struct {
+	ServiceResponse struct {
 		ID        string    `json:"id"`
 		Name      string    `json:"name"`
 		CreatedAt time.Time `json:"created_at"`
