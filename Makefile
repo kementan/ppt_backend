@@ -5,6 +5,8 @@ getdb:
 	docker pull postgres:15.3
 initdb: 
 	docker run --network ppt-network --name postgres15.3 -p 5432:5432 -e POSTGRES_USER=root -e POSTGRES_PASSWORD=11P0rT4LP3rT4N14N99 -d postgres:15.3
+dbaccess:
+	docker exec -it postgres15.3 psql -U root -d ppt_database
 createdb: 
 	docker exec -it postgres15.3 createdb --username=root --owner=root ppt_database
 dropdb: 
@@ -20,5 +22,5 @@ migrateup1:
 migratedown1: 
 	migrate --path database/migration -database "postgresql://root:11P0rT4LP3rT4N14N99@localhost:5432/ppt_database?sslmode=disable" -verbose down 1
 server:
-	go run main.go
+	go run app/main.go
 .PHONY: getdb initdb createdb dropdb migration migrateup migratedown migrateup1 migratedown1 server
