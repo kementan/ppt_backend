@@ -61,13 +61,26 @@ type (
 		UpdatedAt time.Time `json:"updated_at"`
 	}
 
+	SearchResponse struct {
+		Hits struct {
+			Total struct {
+				Value int `json:"value"`
+			} `json:"total"`
+		} `json:"hits"`
+	}
+
+	UserIndex struct {
+		Email string `json:"email"`
+		NIK   string `json:"nik"`
+		NIP   string `json:"nip"`
+		Phone string `json:"phone"`
+	}
+
 	UserDummy struct {
-		RoleID string `json:"role_id"`
-		Name   string `json:"name"`
-		Email  string `json:"email"`
-		NIK    string `json:"nik"`
-		NIP    string `json:"nip"`
-		Phone  string `json:"phone"`
+		Email string `json:"email"`
+		NIK   string `json:"nik"`
+		NIP   string `json:"nip"`
+		Phone string `json:"phone"`
 	}
 
 	UserUpdate struct {

@@ -21,9 +21,9 @@ func EncDec(ctx *gin.Context) {
 	}
 
 	if req.Type == "enc" {
-		result, _ = helper.Encrypt(req.Value)
+		result, _ = helper.Encrypt(req.Value, req.T)
 	} else {
-		result, _ = helper.Decrypt(req.Value)
+		result, _ = helper.Decrypt(req.Value, req.T)
 	}
 
 	ctx.JSON(http.StatusOK, result)

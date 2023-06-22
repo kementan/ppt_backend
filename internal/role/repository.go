@@ -44,7 +44,7 @@ func (q *repository) GetDataBy(ctx context.Context, field string, value string) 
 		&r.UpdatedAt,
 	)
 
-	encID, _ := helper.Encrypt(enc_id)
+	encID, _ := helper.Encrypt(enc_id, "f")
 	r.HashedID = encID
 
 	return r, err
@@ -69,7 +69,7 @@ func (q *repository) Create(ctx context.Context, arg RoleCreate) (RoleResponse, 
 		&r.UpdatedAt,
 	)
 
-	r.HashedID, _ = helper.Encrypt(enc_id)
+	r.HashedID, _ = helper.Encrypt(enc_id, "f")
 
 	return r, err
 }
@@ -101,7 +101,7 @@ func (q *repository) Read(ctx context.Context) ([]RoleResponse, error) {
 			return nil, err
 		}
 
-		encryptedID, _ := helper.Encrypt(enc_id)
+		encryptedID, _ := helper.Encrypt(enc_id, "f")
 		r.HashedID = encryptedID
 
 		items = append(items, r)
@@ -121,7 +121,7 @@ func (q *repository) Read(ctx context.Context) ([]RoleResponse, error) {
 func (q *repository) Update(ctx context.Context, id string, arg RoleUpdate) (RoleResponse, error) {
 	var r RoleResponse
 
-	decryptedID, _ := helper.Decrypt(id)
+	decryptedID, _ := helper.Decrypt(id, "f")
 
 	query := `
 	UPDATE ` + table + `
@@ -148,7 +148,7 @@ func (q *repository) Update(ctx context.Context, id string, arg RoleUpdate) (Rol
 }
 
 func (q *repository) Delete(ctx context.Context, id string) error {
-	decryptedID, _ := helper.Decrypt(id)
+	decryptedID, _ := helper.Decrypt(id, "f")
 
 	query := `
 	DELETE FROM ` + table + ` WHERE id = $1`

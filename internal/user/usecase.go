@@ -86,16 +86,17 @@ func (uc *useCase) Create(ctx *gin.Context) {
 		return
 	}
 
-	role_id, _ := helper.Decrypt(req.RoleID)
-	email, _ := helper.Encrypt(req.Email)
-	nik, _ := helper.Encrypt(req.NIK)
-	nip, _ := helper.Encrypt(req.NIP)
+	role_id, _ := helper.Decrypt(req.RoleID, "f")
+	email, _ := helper.Encrypt(req.Email, "f")
+	name, _ := helper.Encrypt(req.Name, "f")
+	nik, _ := helper.Encrypt(req.NIK, "f")
+	nip, _ := helper.Encrypt(req.NIP, "f")
 	password, _ := helper.HashPassword(req.Password)
-	phone, _ := helper.Encrypt(req.Phone)
+	phone, _ := helper.Encrypt(req.Phone, "f")
 
 	arg := UserCreate{
 		RoleID:   role_id,
-		Name:     req.Name,
+		Name:     name,
 		NIK:      nik,
 		NIP:      nip,
 		Email:    email,
@@ -103,7 +104,19 @@ func (uc *useCase) Create(ctx *gin.Context) {
 		Phone:    phone,
 	}
 
-	data, err := uc.repo.Create(ctx, arg)
+	inik, _ := helper.Encrypt(req.NIK, "s")
+	inip, _ := helper.Encrypt(req.NIP, "s")
+	iemail, _ := helper.Encrypt(req.Email, "s")
+	iphone, _ := helper.Encrypt(req.Phone, "s")
+
+	idx := UserIndex{
+		NIK:   inik,
+		NIP:   inip,
+		Email: iemail,
+		Phone: iphone,
+	}
+
+	data, err := uc.repo.Create(ctx, arg, idx)
 	if err != nil {
 		helper.JERR(ctx, http.StatusInternalServerError, err)
 		return

@@ -21,7 +21,7 @@ type (
 	UserRepository interface {
 		GetDataBy(ctx context.Context, field string, value string) (UserResponse, error)
 		CheckESData(ctx context.Context, field string, value string) (bool, error)
-		Create(ctx context.Context, arg UserCreate) (UserResponse, error)
+		Create(ctx context.Context, arg UserCreate, idx UserIndex) (UserResponse, error)
 		Dummy(ctx context.Context) error
 		Read(ctx context.Context) ([]UserResponse, error)
 		Update(ctx context.Context, id string, arg UserUpdate) (UserResponse, error)
@@ -69,19 +69,24 @@ func (q *repository) GetDataBy(ctx context.Context, field string, value string) 
 		&r.UpdatedAt,
 	)
 
-	encID, _ := helper.Encrypt(enc_id)
+	encID, _ := helper.Encrypt(enc_id, "f")
 	r.HashedID = encID
 
 	return r, err
 }
 
 func (q *repository) CheckESData(ctx context.Context, field string, value string) (bool, error) {
+	encValue, err := helper.Encrypt(value, "s")
+	if err != nil {
+		return true, fmt.Errorf("error encrypting value: %v", err)
+	}
+
 	query := map[string]interface{}{
 		"query": map[string]interface{}{
-			"match_all": map[string]interface{}{},
+			"match": map[string]interface{}{
+				field: encValue,
+			},
 		},
-		"size":    500000,
-		"_source": []string{field},
 	}
 
 	queryJSON, err := json.Marshal(query)
@@ -89,89 +94,50 @@ func (q *repository) CheckESData(ctx context.Context, field string, value string
 		return true, fmt.Errorf("error converting query to JSON: %v", err)
 	}
 
-	res, err := q.edb.Search(
-		q.edb.Search.WithContext(context.Background()),
-		q.edb.Search.WithIndex(table),
-		q.edb.Search.WithBody(bytes.NewReader(queryJSON)),
-	)
+	req := esapi.SearchRequest{
+		Index: []string{table},
+		Body:  bytes.NewReader(queryJSON),
+	}
+
+	res, err := req.Do(ctx, q.edb)
 	if err != nil {
-		return true, fmt.Errorf("error executing search request: %v", err)
+		return true, fmt.Errorf("error executing search request: %s", err)
 	}
 	defer res.Body.Close()
 
-	var data map[string]interface{}
+	if res.IsError() {
+		return true, fmt.Errorf("search request failed: %s", res.Status())
+	}
+
+	var data SearchResponse
 	if err := json.NewDecoder(res.Body).Decode(&data); err != nil {
-		return true, fmt.Errorf("error parsing search response: %v", err)
+		return true, fmt.Errorf("error parsing search response: %s", err)
 	}
 
-	hits, ok := data["hits"].(map[string]interface{})
-	if !ok {
-		return true, fmt.Errorf("invalid hits format in search response 2")
-	}
-
-	hitsArray, ok := hits["hits"].([]interface{})
-	if !ok {
-		return true, fmt.Errorf("invalid hits format in search response 3")
-	}
-
-	for _, hit := range hitsArray {
-		hitMap, ok := hit.(map[string]interface{})
-		if !ok {
-			continue
-		}
-
-		source, ok := hitMap["_source"]
-		if !ok {
-			continue
-		}
-
-		sourceMap, ok := source.(map[string]interface{})
-		if !ok {
-			continue
-		}
-
-		sourceValue, ok := sourceMap[field].(string)
-		if !ok {
-			continue
-		}
-
-		if sourceValue == "" {
-			err = q.DeleteESRecord(table, hitMap["_id"].(string))
-			if err != nil {
-				return true, fmt.Errorf("%s", err)
-			}
-		}
-
-		decRes, _ := helper.Decrypt(sourceValue)
-
-		if decRes == value {
-			return true, fmt.Errorf("data %s with value %s already exists", field, value)
-		}
+	totalHits := data.Hits.Total.Value
+	if totalHits > 0 {
+		return true, fmt.Errorf("data %s with value %s already exists", field, value)
 	}
 
 	return false, nil
 }
 
 func (q *repository) Dummy(ctx context.Context) error {
-	numRecords := 1000000
+	numRecords := 10000
 	start := time.Now()
 	for i := 1; i <= numRecords; i++ {
-		docID := fmt.Sprintf("document-%d", i)
+		docID, _ := helper.Encrypt(fmt.Sprintf("document-%d", i), "s")
 
-		roleID := "value1-" + strconv.Itoa(i)
-		name := "value2-" + strconv.Itoa(i)
-		email := "value3-" + strconv.Itoa(i)
-		nip := "value4-" + strconv.Itoa(i)
-		nik := "value5-" + strconv.Itoa(i)
-		phone := "value6-" + strconv.Itoa(i)
+		email, _ := helper.Encrypt("value3-"+strconv.Itoa(i), "s")
+		nip, _ := helper.Encrypt("value4-"+strconv.Itoa(i), "s")
+		nik, _ := helper.Encrypt("value5-"+strconv.Itoa(i), "s")
+		phone, _ := helper.Encrypt("value6-"+strconv.Itoa(i), "s")
 
 		user := UserDummy{
-			RoleID: roleID,
-			Name:   name,
-			Email:  email,
-			NIP:    nip,
-			NIK:    nik,
-			Phone:  phone,
+			Email: email,
+			NIP:   nip,
+			NIK:   nik,
+			Phone: phone,
 		}
 
 		docBytes, err := json.Marshal(user)
@@ -207,7 +173,7 @@ func (q *repository) Dummy(ctx context.Context) error {
 	return nil
 }
 
-func (q *repository) Create(ctx context.Context, arg UserCreate) (UserResponse, error) {
+func (q *repository) Create(ctx context.Context, arg UserCreate, idx UserIndex) (UserResponse, error) {
 	var r UserResponse
 	var enc_id, enc_role_id string
 
@@ -232,14 +198,15 @@ func (q *repository) Create(ctx context.Context, arg UserCreate) (UserResponse, 
 		&r.UpdatedAt,
 	)
 
-	r.HashedID, _ = helper.Encrypt(enc_id)
-	r.RoleID, _ = helper.Encrypt(enc_role_id)
+	r.HashedID, _ = helper.Encrypt(enc_id, "f")
+	r.RoleID, _ = helper.Encrypt(enc_role_id, "f")
 
 	if err == nil {
+		doc_id, _ := helper.Encrypt(enc_id, "s")
 		_, err2 := q.edb.Index(
 			"ppt_users",
-			strings.NewReader(fmt.Sprintf(`{"role_id": "%s", "name": "%s", "email": "%s", "nik": "%s", "nip": "%s", "phone": "%s"}`, enc_role_id, r.Name, r.Email, r.NIK, r.NIP, r.Phone)),
-			q.edb.Index.WithDocumentID(enc_id),
+			strings.NewReader(fmt.Sprintf(`{"email": "%s", "nik": "%s", "nip": "%s", "phone": "%s"}`, idx.Email, idx.NIK, idx.NIP, idx.Phone)),
+			q.edb.Index.WithDocumentID(doc_id),
 		)
 
 		if err2 != nil {
@@ -275,7 +242,7 @@ func (q *repository) Read(ctx context.Context) ([]UserResponse, error) {
 			return nil, err
 		}
 
-		encryptedID, _ := helper.Encrypt(enc_id)
+		encryptedID, _ := helper.Encrypt(enc_id, "f")
 		r.HashedID = encryptedID
 
 		items = append(items, r)
@@ -295,7 +262,7 @@ func (q *repository) Read(ctx context.Context) ([]UserResponse, error) {
 func (q *repository) Update(ctx context.Context, id string, arg UserUpdate) (UserResponse, error) {
 	var r UserResponse
 
-	decryptedID, _ := helper.Decrypt(id)
+	decryptedID, _ := helper.Decrypt(id, "f")
 
 	query := `
 	UPDATE ` + table + `
@@ -327,7 +294,7 @@ func (q *repository) Update(ctx context.Context, id string, arg UserUpdate) (Use
 }
 
 func (q *repository) Delete(ctx context.Context, id string) error {
-	decryptedID, _ := helper.Decrypt(id)
+	decryptedID, _ := helper.Decrypt(id, "f")
 
 	query := `
 	DELETE FROM ` + table + ` WHERE id = $1`

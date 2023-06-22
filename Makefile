@@ -1,4 +1,5 @@
 # token : glpat-mBz_5tyiK77R7cbn6YQx
+# openssl enc -aes-256-cbc -k secret -P -md sha1
 env1 :
 	docker network create ppt_network
 env2 :

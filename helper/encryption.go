@@ -5,6 +5,7 @@ import (
 	"crypto/cipher"
 	"crypto/rand"
 	"encoding/base64"
+	"encoding/hex"
 	"fmt"
 	"io"
 	"log"
@@ -12,7 +13,7 @@ import (
 	"gitlab.com/xsysproject/ppt_backend/config"
 )
 
-func Encrypt(plaintext string) (string, error) {
+func Encrypt(plaintext, t string) (string, error) {
 	config, err := config.LoadConfig("./.")
 	if err != nil {
 		log.Fatal("cannot load config: ", err)
@@ -20,13 +21,22 @@ func Encrypt(plaintext string) (string, error) {
 
 	key := []byte(config.APPKey)
 
-	block, err := aes.NewCipher(key)
-	if err != nil {
-		return "", err
+	var iv []byte
+
+	if t == "f" {
+		iv = make([]byte, aes.BlockSize)
+		if _, err := io.ReadFull(rand.Reader, iv); err != nil {
+			return "", err
+		}
+	} else {
+		iv, err = hex.DecodeString(config.ElasticIVKey)
+		if err != nil {
+			return "", err
+		}
 	}
 
-	iv := make([]byte, aes.BlockSize)
-	if _, err := io.ReadFull(rand.Reader, iv); err != nil {
+	block, err := aes.NewCipher(key)
+	if err != nil {
 		return "", err
 	}
 
@@ -44,7 +54,7 @@ func Encrypt(plaintext string) (string, error) {
 	return encodedCiphertext, nil
 }
 
-func Decrypt(encodedCiphertext string) (string, error) {
+func Decrypt(encodedCiphertext, t string) (string, error) {
 	config, err := config.LoadConfig("./.")
 	if err != nil {
 		log.Fatal("cannot load config: ", err)
@@ -67,12 +77,18 @@ func Decrypt(encodedCiphertext string) (string, error) {
 	}
 
 	iv := ciphertext[:aes.BlockSize]
-	ciphertext = ciphertext[aes.BlockSize:]
+
+	if t != "f" {
+		iv, err = hex.DecodeString(config.ElasticIVKey)
+		if err != nil {
+			return "", err
+		}
+	}
 
 	mode := cipher.NewCBCDecrypter(block, iv)
 
-	decryptedText := make([]byte, len(ciphertext))
-	mode.CryptBlocks(decryptedText, ciphertext)
+	decryptedText := make([]byte, len(ciphertext)-aes.BlockSize)
+	mode.CryptBlocks(decryptedText, ciphertext[aes.BlockSize:])
 
 	unpaddedText := unpadPlaintext(decryptedText)
 
@@ -91,7 +107,9 @@ func padPlaintext(plaintext []byte, blockSize int) []byte {
 
 func unpadPlaintext(paddedPlaintext []byte) []byte {
 	padding := int(paddedPlaintext[len(paddedPlaintext)-1])
-	unpaddedText := make([]byte, len(paddedPlaintext)-padding)
-	copy(unpaddedText, paddedPlaintext[:len(paddedPlaintext)-padding])
+	if padding >= len(paddedPlaintext) {
+		return paddedPlaintext
+	}
+	unpaddedText := paddedPlaintext[:len(paddedPlaintext)-padding]
 	return unpaddedText
 }

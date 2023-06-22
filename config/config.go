@@ -19,6 +19,7 @@ type Config struct {
 	ElasticDBAddress     string        `mapstructure:"ELASTIC_DB_ADDRESS"`
 	ElasticDBUser        string        `mapstructure:"ELASTIC_DB_USER"`
 	ElasticDBPassword    string        `mapstructure:"ELASTIC_DB_PASSWORD"`
+	ElasticIVKey         string        `mapstructure:"ELASTIC_IV_KEY"`
 }
 
 func LoadConfig(path string) (config Config, err error) {
