@@ -8,11 +8,17 @@ import (
 
 type Config struct {
 	APPKey               string        `mapstructure:"APP_KEY"`
-	DBDriver             string        `mapstructure:"DB_DRIVER"`
-	DBSource             string        `mapstructure:"DB_SOURCE"`
 	HTTPServerAddress    string        `mapstructure:"HTTP_SERVER_ADDRESS"`
 	AccessTokenDuration  time.Duration `mapstructure:"ACCESS_TOKEN_DURATION"`
 	RefreshTokenDuration time.Duration `mapstructure:"REFRESH_TOKEN_DURATION"`
+	PSQLDBDriver         string        `mapstructure:"PSQL_DB_DRIVER"`
+	PSQLDBSource         string        `mapstructure:"PSQL_DB_SOURCE"`
+	RedisDBAddress       string        `mapstructure:"REDIS_DB_ADDRESS"`
+	RedisDBPassword      string        `mapstructure:"REDIS_DB_PASSWORD"`
+	RedisDBIndex         int           `mapstructure:"REDIS_DB_INDEX"`
+	ElasticDBAddress     string        `mapstructure:"ELASTIC_DB_ADDRESS"`
+	ElasticDBUser        string        `mapstructure:"ELASTIC_DB_USER"`
+	ElasticDBPassword    string        `mapstructure:"ELASTIC_DB_PASSWORD"`
 }
 
 func LoadConfig(path string) (config Config, err error) {

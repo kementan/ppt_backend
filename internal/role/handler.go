@@ -34,7 +34,3 @@ func (handler *RoleHandler) Update(ctx *gin.Context) {
 func (handler *RoleHandler) Delete(ctx *gin.Context) {
 	handler.UseCase.Delete(ctx)
 }
-
-func errorResponse(err error) gin.H {
-	return gin.H{"error": err.Error()}
-}

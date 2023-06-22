@@ -27,22 +27,23 @@ func NewRepository(db *sql.DB) ServiceRepository {
 }
 
 func (q *repository) Create(ctx context.Context, arg ServiceCreate) (ServiceResponse, error) {
-	var i ServiceResponse
+	var r ServiceResponse
 
 	query := `
 	INSERT INTO ` + table + ` (
-		name, created_at
-	) VALUES ($1, $2) 
-	RETURNING name, created_at`
+		name
+	) VALUES ($1)
+	RETURNING name, created_at, updated_at`
 
-	row := q.db.QueryRowContext(ctx, query, arg.Name, arg.CreatedAt)
+	row := q.db.QueryRowContext(ctx, query, arg.Name)
 
 	err := row.Scan(
-		&i.Name,
-		&i.CreatedAt,
+		&r.Name,
+		&r.CreatedAt,
+		&r.UpdatedAt,
 	)
 
-	return i, err
+	return r, err
 }
 
 func (q *repository) Read(ctx context.Context) ([]ServiceResponse, error) {
@@ -73,7 +74,7 @@ func (q *repository) Read(ctx context.Context) ([]ServiceResponse, error) {
 		}
 
 		encryptedID, _ := helper.Encrypt(enc_id)
-		r.ID = encryptedID
+		r.HashedID = encryptedID
 
 		items = append(items, r)
 	}
@@ -91,13 +92,14 @@ func (q *repository) Read(ctx context.Context) ([]ServiceResponse, error) {
 
 func (q *repository) Update(ctx context.Context, id string, arg ServiceUpdate) (ServiceResponse, error) {
 	var r ServiceResponse
+
 	decryptedID, _ := helper.Decrypt(id)
 
 	query := `
-	UPDATE ` + table + ` 
-	SET 
+	UPDATE ` + table + `
+	SET
 		name = COALESCE($2, name)
-	WHERE id = $1 
+	WHERE id = $1
 	RETURNING id, name, created_at, updated_at`
 
 	row := q.db.QueryRowContext(ctx, query,
@@ -106,13 +108,13 @@ func (q *repository) Update(ctx context.Context, id string, arg ServiceUpdate) (
 	)
 
 	err := row.Scan(
-		&r.ID,
+		&r.HashedID,
 		&r.Name,
 		&r.CreatedAt,
 		&r.UpdatedAt,
 	)
 
-	r.ID = id
+	r.HashedID = id
 
 	return r, err
 }
@@ -122,6 +124,7 @@ func (q *repository) Delete(ctx context.Context, id string) error {
 
 	query := `
 	DELETE FROM ` + table + ` WHERE id = $1`
+
 	_, err := q.db.ExecContext(ctx, query, decryptedID)
 	return err
 }

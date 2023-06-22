@@ -5,6 +5,7 @@ import (
 	"crypto/cipher"
 	"crypto/rand"
 	"encoding/base64"
+	"fmt"
 	"io"
 	"log"
 
@@ -54,6 +55,10 @@ func Decrypt(encodedCiphertext string) (string, error) {
 	ciphertext, err := base64.StdEncoding.DecodeString(encodedCiphertext)
 	if err != nil {
 		return "", err
+	}
+
+	if len(ciphertext) < aes.BlockSize {
+		return "", fmt.Errorf("invalid ciphertext length")
 	}
 
 	block, err := aes.NewCipher(key)

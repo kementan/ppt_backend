@@ -9,6 +9,7 @@ import (
 
 type (
 	RoleRepository interface {
+		GetDataBy(ctx context.Context, field string, value string) (RoleResponse, error)
 		Create(ctx context.Context, arg RoleCreate) (RoleResponse, error)
 		Read(ctx context.Context) ([]RoleResponse, error)
 		Update(ctx context.Context, id string, arg RoleUpdate) (RoleResponse, error)
@@ -26,23 +27,51 @@ func NewRepository(db *sql.DB) RoleRepository {
 	}
 }
 
+func (q *repository) GetDataBy(ctx context.Context, field string, value string) (RoleResponse, error) {
+	var r RoleResponse
+	var enc_id string
+
+	query := `
+	SELECT * FROM ` + table + `
+	WHERE ` + field + ` = $1
+	LIMIT 1`
+
+	row := q.db.QueryRowContext(ctx, query, value)
+	err := row.Scan(
+		&enc_id,
+		&r.Name,
+		&r.CreatedAt,
+		&r.UpdatedAt,
+	)
+
+	encID, _ := helper.Encrypt(enc_id)
+	r.HashedID = encID
+
+	return r, err
+}
+
 func (q *repository) Create(ctx context.Context, arg RoleCreate) (RoleResponse, error) {
-	var i RoleResponse
+	var r RoleResponse
+	var enc_id string
 
 	query := `
 	INSERT INTO ` + table + ` (
-		name, created_at
-	) VALUES ($1, $2) 
-	RETURNING name, created_at`
+		name
+	) VALUES ($1)
+	RETURNING *`
 
-	row := q.db.QueryRowContext(ctx, query, arg.Name, arg.CreatedAt)
+	row := q.db.QueryRowContext(ctx, query, arg.Name)
 
 	err := row.Scan(
-		&i.Name,
-		&i.CreatedAt,
+		&enc_id,
+		&r.Name,
+		&r.CreatedAt,
+		&r.UpdatedAt,
 	)
 
-	return i, err
+	r.HashedID, _ = helper.Encrypt(enc_id)
+
+	return r, err
 }
 
 func (q *repository) Read(ctx context.Context) ([]RoleResponse, error) {
@@ -73,7 +102,7 @@ func (q *repository) Read(ctx context.Context) ([]RoleResponse, error) {
 		}
 
 		encryptedID, _ := helper.Encrypt(enc_id)
-		r.ID = encryptedID
+		r.HashedID = encryptedID
 
 		items = append(items, r)
 	}
@@ -91,13 +120,14 @@ func (q *repository) Read(ctx context.Context) ([]RoleResponse, error) {
 
 func (q *repository) Update(ctx context.Context, id string, arg RoleUpdate) (RoleResponse, error) {
 	var r RoleResponse
+
 	decryptedID, _ := helper.Decrypt(id)
 
 	query := `
-	UPDATE ` + table + ` 
-	SET 
+	UPDATE ` + table + `
+	SET
 		name = COALESCE($2, name)
-	WHERE id = $1 
+	WHERE id = $1
 	RETURNING id, name, created_at, updated_at`
 
 	row := q.db.QueryRowContext(ctx, query,
@@ -106,13 +136,13 @@ func (q *repository) Update(ctx context.Context, id string, arg RoleUpdate) (Rol
 	)
 
 	err := row.Scan(
-		&r.ID,
+		&r.HashedID,
 		&r.Name,
 		&r.CreatedAt,
 		&r.UpdatedAt,
 	)
 
-	r.ID = id
+	r.HashedID = id
 
 	return r, err
 }
@@ -122,6 +152,7 @@ func (q *repository) Delete(ctx context.Context, id string) error {
 
 	query := `
 	DELETE FROM ` + table + ` WHERE id = $1`
+
 	_, err := q.db.ExecContext(ctx, query, decryptedID)
 	return err
 }

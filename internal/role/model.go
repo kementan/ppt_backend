@@ -8,7 +8,7 @@ import (
 var table = "ppt_roles"
 
 type (
-	RoleRequest struct {
+	RoleCreateRequest struct {
 		Name string `json:"name" binding:"required"`
 	}
 
@@ -27,10 +27,6 @@ type (
 		UpdatedAt time.Time `json:"updated_at"`
 	}
 
-	RoleDelete struct {
-		ID int64 `json:"id" binding:"required,min=1"`
-	}
-
 	RoleUpdate struct {
 		Name      sql.NullString `json:"name"`
 		CreatedAt sql.NullString `json:"created_at"`
@@ -38,7 +34,7 @@ type (
 	}
 
 	RoleResponse struct {
-		ID        string    `json:"id"`
+		HashedID  string    `json:"id"`
 		Name      string    `json:"name"`
 		CreatedAt time.Time `json:"created_at"`
 		UpdatedAt time.Time `json:"updated_at"`

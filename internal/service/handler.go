@@ -34,7 +34,3 @@ func (handler *ServiceHandler) Update(ctx *gin.Context) {
 func (handler *ServiceHandler) Delete(ctx *gin.Context) {
 	handler.UseCase.Delete(ctx)
 }
-
-func errorResponse(err error) gin.H {
-	return gin.H{"error": err.Error()}
-}

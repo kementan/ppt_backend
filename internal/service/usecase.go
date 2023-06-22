@@ -3,9 +3,9 @@ package service
 import (
 	"database/sql"
 	"net/http"
-	"time"
 
 	"github.com/gin-gonic/gin"
+	"gitlab.com/xsysproject/ppt_backend/helper"
 )
 
 type (
@@ -28,41 +28,41 @@ func NewUseCase(repo ServiceRepository) ServiceUseCase {
 }
 
 func (uc *useCase) Create(ctx *gin.Context) {
-	var req ServiceRequest
+	var req ServiceCreateRequest
+
 	if err := ctx.ShouldBindJSON(&req); err != nil {
-		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		helper.JERR(ctx, http.StatusInternalServerError, err)
 		return
 	}
 
 	arg := ServiceCreate{
-		Name:      req.Name,
-		CreatedAt: time.Now(),
+		Name: req.Name,
 	}
 
 	data, err := uc.repo.Create(ctx, arg)
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		helper.JERR(ctx, http.StatusInternalServerError, err)
 		return
 	}
 
-	ctx.JSON(http.StatusOK, data)
+	helper.JOK(ctx, http.StatusOK, data)
 }
 
 func (uc *useCase) Read(ctx *gin.Context) {
 	data, err := uc.repo.Read(ctx)
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		helper.JERR(ctx, http.StatusInternalServerError, err)
 		return
 	}
 
-	ctx.JSON(http.StatusOK, data)
+	helper.JOK(ctx, http.StatusOK, data)
 }
 
 func (uc *useCase) Update(ctx *gin.Context) {
 	var req ServiceUpdateRequest
 
 	if err := ctx.ShouldBindJSON(&req); err != nil {
-		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		helper.JERR(ctx, http.StatusInternalServerError, err)
 		return
 	}
 
@@ -75,25 +75,25 @@ func (uc *useCase) Update(ctx *gin.Context) {
 
 	data, err := uc.repo.Update(ctx, req.ID, arg)
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		helper.JERR(ctx, http.StatusInternalServerError, err)
 	}
 
-	ctx.JSON(http.StatusOK, data)
+	helper.JOK(ctx, http.StatusOK, data)
 }
 
 func (uc *useCase) Delete(ctx *gin.Context) {
 	var req ServiceDeleteRequest
+
 	if err := ctx.ShouldBindJSON(&req); err != nil {
-		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		helper.JERR(ctx, http.StatusInternalServerError, err)
 		return
 	}
 
 	err := uc.repo.Delete(ctx, req.ID)
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		helper.JERR(ctx, http.StatusInternalServerError, err)
 		return
 	}
-	msg := "data successfully deleted"
 
-	ctx.JSON(http.StatusOK, msg)
+	helper.JOK(ctx, http.StatusOK, "data successfully deleted")
 }
