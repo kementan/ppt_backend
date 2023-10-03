@@ -1,0 +1,135 @@
+version: '3'
+services:
+  ppt_nginx:
+    image: nginx:alpine
+    container_name: ppt_nginx
+    volumes:
+      - shared_uploads:/usr/share/nginx/html/uploads
+      - shared_thumbs:/usr/share/nginx/html/uploads/thumbs
+      - shared_org:/usr/share/nginx/html/uploads/org
+      - shared_user:/usr/share/nginx/html/uploads/user
+      - shared_nginx_conf:/etc/nginx/conf.d
+    depends_on:
+      - ppt_backend_golang
+    ports:
+      - "80:80"
+      - "443:443"
+    networks:
+      - ppt_network
+
+  ppt_postgres:
+    image: postgres:15.3
+    container_name: ppt_postgres
+    restart: unless-stopped
+    tty: true
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_USER=root
+      - POSTGRES_PASSWORD=11P0rT4LP3rT4N14N99
+    networks:
+      - ppt_network
+
+  ppt_redis:
+    image: redis
+    container_name: ppt_redis
+    restart: unless-stopped
+    tty: true
+    ports:
+      - "6379:6379"
+    volumes:
+      - shared_redis_conf:/usr/local/etc/redis
+    command: >
+      bash -c "apt-get update && apt-get install -y nano && redis-server /usr/local/etc/redis/redis.conf"
+    environment:
+      - NANO_INSTALLED=true
+    networks:
+      - ppt_network
+
+  ppt_elastic:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.8.1
+    container_name: ppt_elastic
+    restart: unless-stopped
+    tty: true
+    ports:
+      - "9200:9200"
+    environment:
+      - discovery.type=single-node
+      - ES_JAVA_OPTS=-Xms512m -Xmx512m
+      - xpack.security.enabled=true
+      - ELASTIC_PASSWORD=11P0rT4LP3rT4N14N99
+    networks:
+      - ppt_network
+
+  ppt_backend_golang:
+    build:
+      context: ./
+      dockerfile: Dockerfile
+    image: ppt_backend_golang
+    container_name: ppt_backend_golang
+    restart: unless-stopped
+    tty: true
+    volumes:
+      - shared_nginx_conf:/app/ppt_nginx/ppt_nginx_config
+      - shared_redis_conf:/app/ppt_nginx/ppt_redis_config
+      - shared_uploads:/app/ppt_nginx/uploads
+      - shared_thumbs:/app/ppt_nginx/thumbs
+      - shared_org:/app/ppt_nginx/org
+      - shared_user:/app/ppt_nginx/user
+    ports:
+      - "8080:80"
+    networks:
+      - ppt_network
+
+  ppt_kafka:
+    image: confluentinc/cp-kafka:6.2.1
+    container_name: ppt_kafka
+    restart: unless-stopped
+    environment:
+      - KAFKA_BROKER_ID=1
+      - KAFKA_LISTENERS=PLAINTEXT://:9092
+      - KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://ppt_kafka:9092
+      - KAFKA_LISTENER_SECURITY_PROTOCOL_MAP=PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      - KAFKA_INTER_BROKER_LISTENER_NAME=PLAINTEXT
+      - KAFKA_AUTO_CREATE_TOPICS_ENABLE=false
+      - KAFKA_LOG_DIRS=/var/lib/kafka/data
+      - KAFKA_ZOOKEEPER_CONNECT=ppt_zookeeper:2181
+    volumes:
+      - shared_kafka_data:/var/lib/kafka/data
+    ports:
+      - "9092:9092"
+    depends_on:
+      - ppt_zookeeper
+    networks:
+      - ppt_network
+
+  ppt_zookeeper:
+    image: confluentinc/cp-zookeeper:6.2.1
+    container_name: ppt_zookeeper
+    restart: unless-stopped
+    environment:
+      - ZOOKEEPER_CLIENT_PORT=2181
+      - ZOOKEEPER_TICK_TIME=2000
+    volumes:
+      - shared_zookeeper_data:/var/lib/zookeeper/data
+      - shared_zookeeper_logs:/var/lib/zookeeper/log
+    ports:
+      - "2181:2181"
+    networks:
+      - ppt_network
+
+volumes:
+  shared_nginx_conf:
+  shared_redis_conf:
+  shared_uploads:
+  shared_thumbs:
+  shared_org:
+  shared_user:
+  shared_kafka_data:
+  shared_zookeeper_data:
+  shared_zookeeper_logs:
+
+networks:
+  ppt_network:
+    driver: bridge
+    name: ppt_network
