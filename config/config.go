@@ -11,6 +11,7 @@ type Config struct {
 	WebSocketServerAddress string        `mapstructure:"WEBSOCKET_SERVER_ADDRESS"`
 	APPKey                 string        `mapstructure:"APP_KEY"`
 	SecretKey              string        `mapstructure:"SECRET_KEY"`
+	OWM_API                string        `mapstructure:"OWM_API"`
 	AllowOrigin            string        `mapstructure:"ALLOW_ORIGIN"`
 	TokenAccessDuration    time.Duration `mapstructure:"TOKEN_ACCESS_DURATION"`
 	TokenRefreshDuration   time.Duration `mapstructure:"TOKEN_REFRESH_DURATION"`

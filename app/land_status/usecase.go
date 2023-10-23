@@ -14,6 +14,7 @@ import (
 type (
 	LandStatusUsecase interface {
 		GetTable(c *gin.Context)
+		GetList(c *gin.Context)
 		GetByID(c *gin.Context)
 		Create(c *gin.Context)
 		Update(c *gin.Context)
@@ -76,6 +77,16 @@ func (uc *usecase) GetTable(c *gin.Context) {
 	}
 
 	util.JOK(c, http.StatusOK, response)
+}
+
+func (uc *usecase) GetList(c *gin.Context) {
+	data, err := uc.repo.Read(c)
+	if err != nil && err != sql.ErrNoRows {
+		util.JERR(c, http.StatusInternalServerError, err)
+		return
+	}
+
+	util.JOK(c, http.StatusOK, data)
 }
 
 func (uc *usecase) GetByID(c *gin.Context) {

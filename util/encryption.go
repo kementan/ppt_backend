@@ -42,7 +42,7 @@ func Encrypt(plaintext, t string) (string, error) {
 
 	ciphertext = append(iv, ciphertext...)
 
-	encodedCiphertext := base64.StdEncoding.EncodeToString(ciphertext)
+	encodedCiphertext := base64.URLEncoding.EncodeToString(ciphertext)
 
 	return encodedCiphertext, nil
 }
@@ -50,7 +50,7 @@ func Encrypt(plaintext, t string) (string, error) {
 func Decrypt(encodedCiphertext, t string) (string, error) {
 	key := []byte(appConfig.APPKey)
 
-	ciphertext, err := base64.StdEncoding.DecodeString(encodedCiphertext)
+	ciphertext, err := base64.URLEncoding.DecodeString(encodedCiphertext)
 	if err != nil {
 		return "", err
 	}

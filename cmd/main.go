@@ -7,13 +7,18 @@ import (
 	"log"
 
 	"github.com/elastic/go-elasticsearch/v8"
-	"github.com/gigaflex-co/ppt_backend/app/commodity"
+	"github.com/gigaflex-co/ppt_backend/app/configuration"
+	"github.com/gigaflex-co/ppt_backend/app/dukcapil"
 	"github.com/gigaflex-co/ppt_backend/app/encdec"
+	"github.com/gigaflex-co/ppt_backend/app/external_api"
+	"github.com/gigaflex-co/ppt_backend/app/internal_api"
 	"github.com/gigaflex-co/ppt_backend/app/land_status"
 	"github.com/gigaflex-co/ppt_backend/app/menu"
+	"github.com/gigaflex-co/ppt_backend/app/region"
 	"github.com/gigaflex-co/ppt_backend/app/report_category"
 	"github.com/gigaflex-co/ppt_backend/app/role"
 	"github.com/gigaflex-co/ppt_backend/app/service"
+	"github.com/gigaflex-co/ppt_backend/app/sub_sector"
 	"github.com/gigaflex-co/ppt_backend/app/user"
 	"github.com/gigaflex-co/ppt_backend/app/ws"
 	"github.com/gigaflex-co/ppt_backend/config"
@@ -35,20 +40,6 @@ func main() {
 		log.Fatal("cannot connect to PostgreSQL database:", err)
 	}
 	defer psql.Close()
-
-	// ds := fmt.Sprintf("%s:%s@tcp(%s:%d)/%s", config.MYSQLDBUsername, config.MYSQLDBPassword, config.MYSQLDBHost, config.MYSQLDBPort, config.MYSQLDBName)
-	// mysql, err := sql.Open("mysql", ds)
-	// if err != nil {
-	// 	log.Fatal("cannot connect to MYSQL database:", err.Error())
-	// 	return
-	// }
-	// defer mysql.Close()
-
-	// err = mysql.Ping()
-	// if err != nil {
-	// 	log.Fatal("cannot connect to MYSQL database:", err.Error())
-	// 	return
-	// }
 
 	rdb := redis.NewClient(&redis.Options{
 		Addr:     config.RedisDBAddress,
@@ -114,6 +105,7 @@ func CORSMiddleware(config config.Config) gin.HandlerFunc {
 func GinServer(config config.Config, db *sql.DB, rdb *redis.Client, edb *elasticsearch.Client) {
 	// gin.SetMode(gin.ReleaseMode)
 	router := gin.Default()
+	router.ForwardedByClientIP = false
 	router.Use(CORSMiddleware(config))
 
 	userRepo := user.NewRepository(db, rdb, edb)
@@ -136,14 +128,30 @@ func GinServer(config config.Config, db *sql.DB, rdb *redis.Client, edb *elastic
 	landStatusUsecase := land_status.NewUsecase(landStatusRepo)
 	land_status.NewHandler(router, landStatusUsecase, rdb)
 
-	commodityRepo := commodity.NewRepository(db)
-	commodityUsecase := commodity.NewUsecase(commodityRepo)
-	commodity.NewHandler(router, commodityUsecase, rdb)
+	subSectorRepo := sub_sector.NewRepository(db)
+	subSectorUsecase := sub_sector.NewUsecase(subSectorRepo)
+	sub_sector.NewHandler(router, subSectorUsecase, rdb)
 
 	reportCategoryRepo := report_category.NewRepository(db)
 	reportCategoryUsecase := report_category.NewUsecase(reportCategoryRepo)
 	report_category.NewHandler(router, reportCategoryUsecase, rdb)
 
+	regionRepo := region.NewRepository(db)
+	regionUsecase := region.NewUsecase(regionRepo)
+	region.NewHandler(router, regionUsecase, rdb)
+
+	configurationRepo := configuration.NewRepository(db)
+	configurationUsecase := configuration.NewUsecase(configurationRepo)
+	configuration.NewHandler(router, configurationUsecase, rdb)
+
+	InternalApiRepo := internal_api.NewRepository(db)
+	InternalApiUsecase := internal_api.NewUsecase(InternalApiRepo)
+	internal_api.NewHandler(router, InternalApiUsecase, rdb)
+
+	ExternalApiUsecase := external_api.NewUsecase()
+	external_api.NewHandler(router, ExternalApiUsecase, rdb)
+
+	dukcapil.NewHandler(router, rdb)
 	encdec.NewHandler(router, rdb)
 
 	router.Run(config.HTTPServerAddress)

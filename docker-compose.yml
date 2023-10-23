@@ -4,13 +4,10 @@ services:
     image: nginx:alpine
     container_name: ppt_nginx
     volumes:
-      - shared_uploads:/usr/share/nginx/html/uploads
-      - shared_thumbs:/usr/share/nginx/html/uploads/thumbs
-      - shared_org:/usr/share/nginx/html/uploads/org
-      - shared_user:/usr/share/nginx/html/uploads/user
       - shared_nginx_conf:/etc/nginx/conf.d
-    depends_on:
-      - ppt_backend_golang
+    # depends_on:
+    #   - ppt_backend_golang
+    #   - ppt_frontend_angular
     ports:
       - "80:80"
       - "443:443"
@@ -72,12 +69,21 @@ services:
     volumes:
       - shared_nginx_conf:/app/ppt_nginx/ppt_nginx_config
       - shared_redis_conf:/app/ppt_nginx/ppt_redis_config
-      - shared_uploads:/app/ppt_nginx/uploads
-      - shared_thumbs:/app/ppt_nginx/thumbs
-      - shared_org:/app/ppt_nginx/org
-      - shared_user:/app/ppt_nginx/user
     ports:
       - "8080:80"
+    networks:
+      - ppt_network
+
+  ppt_frontend_angular:
+    build:
+      context: ../../../typescript/ppt_frontend
+      dockerfile: Dockerfile 
+    image: ppt_frontend_angular
+    container_name: ppt_frontend_angular
+    restart: unless-stopped
+    tty: true
+    ports:
+      - "4200:80"
     networks:
       - ppt_network
 
@@ -121,10 +127,6 @@ services:
 volumes:
   shared_nginx_conf:
   shared_redis_conf:
-  shared_uploads:
-  shared_thumbs:
-  shared_org:
-  shared_user:
   shared_kafka_data:
   shared_zookeeper_data:
   shared_zookeeper_logs:

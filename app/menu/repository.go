@@ -163,7 +163,6 @@ func (q *repository) Read(c context.Context) ([]MenuResponse, error) {
 	if err != nil {
 		return nil, err
 	}
-
 	defer rows.Close()
 
 	for rows.Next() {

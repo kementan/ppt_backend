@@ -20,7 +20,7 @@ func NewHandler(router *gin.Engine, usecase MenuUsecase, rdb *redis.Client) {
 	v1 := router.Group("/v1")
 
 	v1.GET("menu-export", util.AuthMiddleware(handler.rdb), handler.Export)
-	v1.GET("menu-table", util.AuthMiddleware(handler.rdb), handler.GetTable)
+	v1.GET("menu-table", handler.GetTable)
 	v1.PUT("menu-update", util.AuthMiddleware(handler.rdb), handler.Update)
 	v1.POST("menu-id", util.AuthMiddleware(handler.rdb), handler.GetByID)
 	v1.POST("menu-create", util.AuthMiddleware(handler.rdb), handler.Create)

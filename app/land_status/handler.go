@@ -20,6 +20,7 @@ func NewHandler(router *gin.Engine, usecase LandStatusUsecase, rdb *redis.Client
 	v1 := router.Group("/v1")
 
 	v1.GET("land-status-table", util.AuthMiddleware(handler.rdb), handler.GetTable)
+	v1.GET("land-status-list", util.AuthMiddleware(handler.rdb), handler.GetList)
 	v1.PUT("land-status-update", util.AuthMiddleware(handler.rdb), handler.Update)
 	v1.POST("land-status-id", util.AuthMiddleware(handler.rdb), handler.GetByID)
 	v1.POST("land-status-create", util.AuthMiddleware(handler.rdb), handler.Create)
@@ -28,6 +29,10 @@ func NewHandler(router *gin.Engine, usecase LandStatusUsecase, rdb *redis.Client
 
 func (handler *LandStatusHandler) GetTable(c *gin.Context) {
 	handler.Usecase.GetTable(c)
+}
+
+func (handler *LandStatusHandler) GetList(c *gin.Context) {
+	handler.Usecase.GetList(c)
 }
 
 func (handler *LandStatusHandler) GetByID(c *gin.Context) {

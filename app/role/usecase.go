@@ -15,6 +15,8 @@ type (
 	RoleUsecase interface {
 		RoleValidation(c *gin.Context)
 		GetTable(c *gin.Context)
+		GetPublicRole(c *gin.Context)
+		GetAllRole(c *gin.Context)
 		GetByID(c *gin.Context)
 		Create(c *gin.Context)
 		Update(c *gin.Context)
@@ -90,6 +92,26 @@ func (uc *usecase) GetTable(c *gin.Context) {
 	util.JOK(c, http.StatusOK, response)
 }
 
+func (uc *usecase) GetPublicRole(c *gin.Context) {
+	data, err := uc.repo.Read(c, "pub")
+	if err != nil && err != sql.ErrNoRows {
+		util.JERR(c, http.StatusInternalServerError, err)
+		return
+	}
+
+	util.JOK(c, http.StatusOK, data)
+}
+
+func (uc *usecase) GetAllRole(c *gin.Context) {
+	data, err := uc.repo.Read(c, "all")
+	if err != nil && err != sql.ErrNoRows {
+		util.JERR(c, http.StatusInternalServerError, err)
+		return
+	}
+
+	util.JOK(c, http.StatusOK, data)
+}
+
 func (uc *usecase) GetByID(c *gin.Context) {
 	type ID struct {
 		ID string `json:"id" binding:"required,min=1"`
@@ -144,7 +166,12 @@ func (uc *usecase) Create(c *gin.Context) {
 	}
 
 	arg := RoleCreate{
-		Name: req.Name,
+		Name:     req.Name,
+		IsCreate: req.IsCreate,
+		IsRead:   req.IsRead,
+		IsUpdate: req.IsUpdate,
+		IsDelete: req.IsDelete,
+		IsPublic: req.IsPublic,
 	}
 
 	data, err := uc.repo.Create(c, arg)
@@ -175,6 +202,11 @@ func (uc *usecase) Update(c *gin.Context) {
 			String: req.Name,
 			Valid:  true,
 		},
+		IsCreate: req.IsCreate,
+		IsRead:   req.IsRead,
+		IsUpdate: req.IsUpdate,
+		IsDelete: req.IsDelete,
+		IsPublic: req.IsPublic,
 	}
 
 	data, err := uc.repo.Update(c, req.ID, arg)

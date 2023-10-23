@@ -22,19 +22,28 @@ CREATE TABLE ppt_services (
     updated_at TIMESTAMP DEFAULT NOW()
 );
 
-CREATE TABLE ppt_sub_services (
+CREATE TYPE dataform AS ENUM ('barchart', 'piechart', 'linechart', 'table', 'maps');
+CREATE TABLE ppt_service_details (
     id BIGSERIAL PRIMARY KEY,
     service_id BIGSERIAL NOT NULL,
     name VARCHAR(100) NOT NULL,
-    slug VARCHAR(100) NOT NULL,
+    endpoint VARCHAR(100) NOT NULL,
     img VARCHAR(100) NULL,
     sort INTEGER NOT NULL,
+    index_data_position INTEGER NOT NULL,
+    index_data_name VARCHAR(50) NOT NULL,
+    index_prev_position INTEGER NULL,
+    index_prev_name VARCHAR(50) NULL,
+    index_next_position INTEGER NULL,
+    index_next_name VARCHAR(50) NULL,
+    method VARCHAR(10) NOT NULL,
+    display dataform,
     created_at TIMESTAMP DEFAULT NOW(),
     updated_at TIMESTAMP DEFAULT NOW()
 );
 
-CREATE INDEX ON "ppt_sub_services" ("service_id");
-ALTER TABLE "ppt_sub_services" ADD FOREIGN KEY ("service_id") REFERENCES "ppt_services" ("id");
+CREATE INDEX ON "ppt_service_details" ("service_id");
+ALTER TABLE "ppt_service_details" ADD FOREIGN KEY ("service_id") REFERENCES "ppt_services" ("id");
 
 CREATE TABLE ppt_menus (
     id BIGSERIAL PRIMARY KEY,
@@ -60,7 +69,7 @@ CREATE TABLE ppt_sub_menus (
 CREATE INDEX ON "ppt_sub_menus" ("menu_id");
 ALTER TABLE "ppt_sub_menus" ADD FOREIGN KEY ("menu_id") REFERENCES "ppt_menus" ("id");
 
-CREATE TABLE ppt_commodities (
+CREATE TABLE ppt_sub_sectors (
     id BIGSERIAL PRIMARY KEY,
     name VARCHAR(100) NOT NULL,
     description VARCHAR(255) NULL,
@@ -72,51 +81,14 @@ CREATE TABLE ppt_configurations (
     id BIGSERIAL PRIMARY KEY,
     name VARCHAR(100) NOT NULL,
     value VARCHAR(255) NOT NULL,
+    is_lock BOOLEAN NOT NULL DEFAULT true,
     created_at TIMESTAMP DEFAULT NOW(),
     updated_at TIMESTAMP DEFAULT NOW()
 );
-
-CREATE TABLE ppt_service_endpoints (
-    id BIGSERIAL PRIMARY KEY,
-    service_id BIGSERIAL NOT NULL,
-    sub_service_id INTEGER NULL,
-    commodity_id BIGSERIAL NOT NULL,
-    name VARCHAR(100) NOT NULL,
-    endpoint VARCHAR(255) NOT NULL,
-    index_status VARCHAR(255) NULL,
-    index_data VARCHAR(255) NOT NULL,
-    index_prev_page VARCHAR(255) NULL,
-    index_next_page VARCHAR(255) NULL,
-    token VARCHAR(255) NULL,
-    params VARCHAR(255) NULL,
-    params_value VARCHAR(255) NULL,
-    is_active BOOLEAN NOT NULL DEFAULT true,
-    created_at TIMESTAMP DEFAULT NOW(),
-    updated_at TIMESTAMP DEFAULT NOW()
-);
-
-CREATE INDEX ON "ppt_service_endpoints" ("service_id");
-ALTER TABLE "ppt_service_endpoints" ADD FOREIGN KEY ("service_id") REFERENCES "ppt_services" ("id");
-CREATE INDEX ON "ppt_service_endpoints" ("commodity_id");
-ALTER TABLE "ppt_service_endpoints" ADD FOREIGN KEY ("commodity_id") REFERENCES "ppt_commodities" ("id");
-
--- CREATE TYPE dataform AS ENUM ('barchart', 'piechart', 'linechart', 'table');
-CREATE TABLE ppt_service_endpoint_displays (
-    id BIGSERIAL PRIMARY KEY,
-    service_endpoint_id BIGSERIAL NOT NULL,
-    display dataform,
-    sort INTEGER NOT NULL,
-    is_custom BOOLEAN NOT NULL DEFAULT false,
-    created_at TIMESTAMP DEFAULT NOW(),
-    updated_at TIMESTAMP DEFAULT NOW()
-);
-
-CREATE INDEX ON "ppt_service_endpoint_displays" ("service_endpoint_id");
-ALTER TABLE "ppt_service_endpoint_displays" ADD FOREIGN KEY ("service_endpoint_id") REFERENCES "ppt_service_endpoints" ("id");
 
 CREATE TABLE ppt_service_endpoint_caches (
     id BIGSERIAL PRIMARY KEY,
-    service_endpoint_id BIGSERIAL NOT NULL,
+    service_detail_id BIGSERIAL NOT NULL,
     f1 VARCHAR(100) NULL,
     f2 VARCHAR(100) NULL,
     f3 VARCHAR(100) NULL,
@@ -142,8 +114,41 @@ CREATE TABLE ppt_service_endpoint_caches (
     updated_at TIMESTAMP DEFAULT NOW()
 );
 
-CREATE INDEX ON "ppt_service_endpoint_caches" ("service_endpoint_id");
-ALTER TABLE "ppt_service_endpoint_caches" ADD FOREIGN KEY ("service_endpoint_id") REFERENCES "ppt_service_endpoints" ("id");
+CREATE INDEX ON "ppt_service_endpoint_caches" ("service_detail_id");
+ALTER TABLE "ppt_service_endpoint_caches" ADD FOREIGN KEY ("service_detail_id") REFERENCES "ppt_service_details" ("id");
+
+CREATE TABLE ppt_api_data_storages (
+    id BIGSERIAL PRIMARY KEY,
+    identifier BIGSERIAL NOT NULL,
+    f1 VARCHAR(255) NULL,
+    f2 VARCHAR(255) NULL,
+    f3 VARCHAR(255) NULL,
+    f4 VARCHAR(255) NULL,
+    f5 VARCHAR(255) NULL,
+    f6 VARCHAR(255) NULL,
+    f7 VARCHAR(255) NULL,
+    f8 VARCHAR(255) NULL,
+    f9 VARCHAR(255) NULL,
+    f10 VARCHAR(255) NULL,
+    f11 VARCHAR(255) NULL,
+    f12 VARCHAR(255) NULL,
+    f13 VARCHAR(255) NULL,
+    f14 VARCHAR(255) NULL,
+    f15 VARCHAR(255) NULL,
+    f16 VARCHAR(255) NULL,
+    f17 VARCHAR(255) NULL,
+    f18 VARCHAR(255) NULL,
+    f19 VARCHAR(255) NULL,
+    f20 VARCHAR(255) NULL,
+    f21 VARCHAR(255) NULL,
+    f22 VARCHAR(255) NULL,
+    f23 VARCHAR(255) NULL,
+    f24 VARCHAR(255) NULL,
+    f25 VARCHAR(255) NULL,
+    longtext TEXT NULL,
+    created_at TIMESTAMP DEFAULT NOW(),
+    updated_at TIMESTAMP DEFAULT NOW()
+);
 
 CREATE TABLE ppt_service_accesses (
     id BIGSERIAL PRIMARY KEY,
@@ -172,6 +177,7 @@ ALTER TABLE "ppt_sub_menu_accesses" ADD FOREIGN KEY ("role_id") REFERENCES "ppt_
 CREATE INDEX ON "ppt_sub_menu_accesses" ("sub_menu_id");
 ALTER TABLE "ppt_sub_menu_accesses" ADD FOREIGN KEY ("sub_menu_id") REFERENCES "ppt_sub_menus" ("id");
 
+CREATE TYPE gender AS ENUM ('l','p');
 CREATE TABLE ppt_users (
     id BIGSERIAL PRIMARY KEY,
     role_id BIGSERIAL NOT NULL,
@@ -183,18 +189,24 @@ CREATE TABLE ppt_users (
     username VARCHAR(255) NOT NULL UNIQUE,
     email VARCHAR(255) NOT NULL UNIQUE,
     phone VARCHAR(255) NULL UNIQUE,
-    password VARCHAR(255) NOT NULL,
+    password VARCHAR(255) NULL,
+    google_id TEXT NULL,
     nik VARCHAR(255) NULL UNIQUE,
     nip VARCHAR(255) NULL UNIQUE,
-    dob VARCHAR(255) NULL,  -- DATE OF BIRTH
-    pob VARCHAR(255) NULL,  -- PLACE OF BIRTH
+    gender gender DEFAULT 'l',
+    dob VARCHAR(255) NULL,
+    pob VARCHAR(255) NULL,
     img_user VARCHAR(255) NULL,
     img_id VARCHAR(255) NULL,
     address VARCHAR(255) NULL,
     addr_rt VARCHAR(255) NULL,
     addr_rw VARCHAR(255) NULL,
+    latitude NUMERIC NULL,
+    longitude NUMERIC NULL,
     occupation VARCHAR(255) NULL,
     is_active BOOLEAN NOT NULL DEFAULT true,
+    is_complete BOOLEAN NOT NULL DEFAULT false,
+    is_verified BOOLEAN NOT NULL DEFAULT false,
     created_at TIMESTAMP DEFAULT NOW(),
     updated_at TIMESTAMP DEFAULT NOW()
 );
@@ -295,18 +307,43 @@ ALTER TABLE "ppt_user_lands" ADD FOREIGN KEY ("user_id") REFERENCES "ppt_users" 
 CREATE INDEX ON "ppt_user_lands" ("land_status_id");
 ALTER TABLE "ppt_user_lands" ADD FOREIGN KEY ("land_status_id") REFERENCES "ppt_land_statuses" ("id");
 
-CREATE TABLE ppt_user_commodity_accesses (
+CREATE TABLE ppt_sub_sector_accesses (
     id BIGSERIAL PRIMARY KEY,
     user_id BIGSERIAL NOT NULL,
-    commodity_id BIGSERIAL NOT NULL,
+    sub_sector_id BIGSERIAL NOT NULL,
     created_at TIMESTAMP DEFAULT NOW(),
     updated_at TIMESTAMP DEFAULT NOW()
 );
 
-CREATE INDEX ON "ppt_user_commodity_accesses" ("user_id");
-ALTER TABLE "ppt_user_commodity_accesses" ADD FOREIGN KEY ("user_id") REFERENCES "ppt_users" ("id");
-CREATE INDEX ON "ppt_user_commodity_accesses" ("commodity_id");
-ALTER TABLE "ppt_user_commodity_accesses" ADD FOREIGN KEY ("commodity_id") REFERENCES "ppt_commodities" ("id");
+CREATE INDEX ON "ppt_sub_sector_accesses" ("user_id");
+ALTER TABLE "ppt_sub_sector_accesses" ADD FOREIGN KEY ("user_id") REFERENCES "ppt_users" ("id");
+CREATE INDEX ON "ppt_sub_sector_accesses" ("sub_sector_id");
+ALTER TABLE "ppt_sub_sector_accesses" ADD FOREIGN KEY ("sub_sector_id") REFERENCES "ppt_sub_sectors" ("id");
+
+CREATE TYPE modtype AS ENUM ('iframe','tableu');
+CREATE TABLE ppt_modules (
+    id BIGSERIAL PRIMARY KEY,
+    title VARCHAR(100) NOT NULL,
+    image VARCHAR(100) NOT NULL,
+    sort INTEGER NOT NULL,
+    module_type modtype,
+    is_public BOOLEAN NOT NULL DEFAULT false,
+    created_at TIMESTAMP DEFAULT NOW(),
+    updated_at TIMESTAMP DEFAULT NOW()
+);
+
+CREATE TABLE ppt_module_accesses (
+    id BIGSERIAL PRIMARY KEY,
+    role_id BIGSERIAL NOT NULL,
+    module_id BIGSERIAL NOT NULL,
+    created_at TIMESTAMP DEFAULT NOW(),
+    updated_at TIMESTAMP DEFAULT NOW()
+);
+
+CREATE INDEX ON "ppt_module_accesses" ("role_id");
+ALTER TABLE "ppt_module_accesses" ADD FOREIGN KEY ("role_id") REFERENCES "ppt_roles" ("id");
+CREATE INDEX ON "ppt_module_accesses" ("module_id");
+ALTER TABLE "ppt_module_accesses" ADD FOREIGN KEY ("module_id") REFERENCES "ppt_modules" ("id");
 
 -- ======================================  Wilayah
 CREATE TABLE IF NOT EXISTS ppt_wilayah (

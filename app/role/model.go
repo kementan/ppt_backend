@@ -16,22 +16,42 @@ type (
 	}
 
 	RoleCreateRequest struct {
-		Name string `json:"name" binding:"required"`
+		Name     string `json:"name" binding:"required"`
+		IsCreate *bool  `json:"is_create"`
+		IsRead   *bool  `json:"is_read"`
+		IsUpdate *bool  `json:"is_update"`
+		IsDelete *bool  `json:"is_delete"`
+		IsPublic *bool  `json:"is_public"`
 	}
 
 	RoleUpdateRequest struct {
-		ID   string `json:"id" binding:"required"`
-		Name string `json:"name" binding:"required"`
+		ID       string `json:"id" binding:"required"`
+		Name     string `json:"name" binding:"required"`
+		IsCreate *bool  `json:"is_create"`
+		IsRead   *bool  `json:"is_read"`
+		IsUpdate *bool  `json:"is_update"`
+		IsDelete *bool  `json:"is_delete"`
+		IsPublic *bool  `json:"is_public"`
 	}
 
 	RoleCreate struct {
 		Name      string    `json:"name"`
+		IsCreate  *bool     `json:"is_create"`
+		IsRead    *bool     `json:"is_read"`
+		IsUpdate  *bool     `json:"is_update"`
+		IsDelete  *bool     `json:"is_delete"`
+		IsPublic  *bool     `json:"is_public"`
 		CreatedAt time.Time `json:"created_at"`
 		UpdatedAt time.Time `json:"updated_at"`
 	}
 
 	RoleUpdate struct {
 		Name      sql.NullString `json:"name"`
+		IsCreate  *bool          `json:"is_create"`
+		IsRead    *bool          `json:"is_read"`
+		IsUpdate  *bool          `json:"is_update"`
+		IsDelete  *bool          `json:"is_delete"`
+		IsPublic  *bool          `json:"is_public"`
 		CreatedAt sql.NullString `json:"created_at"`
 		UpdatedAt sql.NullString `json:"updated_at"`
 	}

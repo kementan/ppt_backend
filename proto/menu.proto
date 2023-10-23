@@ -1,0 +1,40 @@
+syntax = "proto3";
+option go_package = "github.com/gigaflex-co/ppt_backend/proto";
+
+package menu;
+
+
+service MenuService {
+    rpc GetTable (MenuTableRequest) returns (MenuTableResponse);
+}
+
+message MenuTableRequest {
+    string search = 1;
+    string sort_by = 2;
+    string sort_order = 3;
+    int32 page = 4;
+    int32 page_size = 5;
+}
+
+message MenuTableResponse {
+    repeated MenuResponse row = 1;
+    PaginationResponse pagination = 2;
+}
+
+message MenuResponse {
+    string hashed_id = 1;
+    string name = 2;
+    string slug = 3;
+    int32 sort = 4;
+    bool is_active = 5;
+    int32 sub_menu = 6;
+    string created_at = 7;
+    string updated_at = 8;
+}
+
+message PaginationResponse {
+    int32 current_page = 1;
+    int32 page_size = 2;
+    int32 total_pages = 3;
+    int32 total_records = 4;
+}

@@ -22,6 +22,8 @@ func NewHandler(router *gin.Engine, usecase RoleUsecase, rdb *redis.Client) {
 	v1.GET("role-validation", util.AuthMiddleware(handler.rdb), handler.RoleValidation)
 
 	v1.GET("role-table", util.AuthMiddleware(handler.rdb), handler.GetTable)
+	v1.GET("role-8sd234kh34-list", util.AuthMiddleware(handler.rdb), handler.GetPublicRole)
+	v1.GET("role-2238sdas9d-list", util.AuthMiddleware(handler.rdb), handler.GetAllRole)
 	v1.PUT("role-update", util.AuthMiddleware(handler.rdb), handler.Update)
 	v1.POST("role-id", util.AuthMiddleware(handler.rdb), handler.GetByID)
 	v1.POST("role-create", util.AuthMiddleware(handler.rdb), handler.Create)
@@ -34,6 +36,14 @@ func (handler *RoleHandler) RoleValidation(c *gin.Context) {
 
 func (handler *RoleHandler) GetTable(c *gin.Context) {
 	handler.Usecase.GetTable(c)
+}
+
+func (handler *RoleHandler) GetPublicRole(c *gin.Context) {
+	handler.Usecase.GetPublicRole(c)
+}
+
+func (handler *RoleHandler) GetAllRole(c *gin.Context) {
+	handler.Usecase.GetAllRole(c)
 }
 
 func (handler *RoleHandler) GetByID(c *gin.Context) {

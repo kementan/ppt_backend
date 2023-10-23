@@ -14,7 +14,7 @@ type (
 		GetTable(c context.Context, arg util.DataFilter) ([]RoleResponse, error)
 		CountRecords(c context.Context, arg util.DataFilter) (int, error)
 		Create(c context.Context, arg RoleCreate) (RoleResponse, error)
-		Read(c context.Context) ([]RoleResponse, error)
+		Read(c context.Context, t string) ([]RoleResponse, error)
 		Update(c context.Context, id string, arg RoleUpdate) (RoleResponse, error)
 		Delete(c context.Context, ids []string) ([]string, []string, error)
 	}
@@ -54,7 +54,7 @@ func (q *repository) GetDataBy(c context.Context, field string, value string) (R
 	var enc_id string
 
 	query := `
-	SELECT id, name, created_at, updated_at FROM ` + table + `
+	SELECT id, name, is_create, is_read, is_update, is_delete, is_public, created_at, updated_at FROM ` + table + `
 	WHERE ` + field + ` = $1
 	LIMIT 1`
 
@@ -62,6 +62,11 @@ func (q *repository) GetDataBy(c context.Context, field string, value string) (R
 	err := row.Scan(
 		&enc_id,
 		&r.Name,
+		&r.IsCreate,
+		&r.IsRead,
+		&r.IsUpdate,
+		&r.IsDelete,
+		&r.IsPublic,
 		&r.CreatedAt,
 		&r.UpdatedAt,
 	)
@@ -155,11 +160,18 @@ func (q *repository) Create(c context.Context, arg RoleCreate) (RoleResponse, er
 
 	query := `
 	INSERT INTO ` + table + ` (
-		name
-	) VALUES ($1)
+		name, is_create, is_read, is_update, is_delete, is_public
+	) VALUES ($1, $2, $3, $4, $5, $6)
 	RETURNING id, name, is_create, is_read, is_update, is_delete, is_public, created_at, updated_at`
 
-	row := q.db.QueryRowContext(c, query, arg.Name)
+	row := q.db.QueryRowContext(c, query,
+		arg.Name,
+		arg.IsCreate,
+		arg.IsRead,
+		arg.IsUpdate,
+		arg.IsDelete,
+		arg.IsPublic,
+	)
 
 	err := row.Scan(
 		&enc_id,
@@ -178,10 +190,16 @@ func (q *repository) Create(c context.Context, arg RoleCreate) (RoleResponse, er
 	return r, err
 }
 
-func (q *repository) Read(c context.Context) ([]RoleResponse, error) {
+func (q *repository) Read(c context.Context, t string) ([]RoleResponse, error) {
 	query := `
-	SELECT id, name, created_at, updated_at
-	FROM ` + table + ` ORDER BY id`
+	SELECT id, name, is_create, is_read, is_update, is_delete, is_public, created_at, updated_at
+	FROM ` + table + ``
+
+	if t == "pub" {
+		query = query + ` WHERE is_public = true AND name != 'default'`
+	}
+
+	query = query + ` ORDER BY id`
 
 	rows, err := q.db.QueryContext(c, query)
 	if err != nil {
@@ -199,6 +217,11 @@ func (q *repository) Read(c context.Context) ([]RoleResponse, error) {
 		if err := rows.Scan(
 			&enc_id,
 			&r.Name,
+			&r.IsCreate,
+			&r.IsRead,
+			&r.IsUpdate,
+			&r.IsDelete,
+			&r.IsPublic,
 			&r.CreatedAt,
 			&r.UpdatedAt,
 		); err != nil {
@@ -229,18 +252,33 @@ func (q *repository) Update(c context.Context, id string, arg RoleUpdate) (RoleR
 	query := `
 	UPDATE ` + table + `
 	SET
-		name = COALESCE($2, name)
+		name = COALESCE($2, name),
+		is_create = COALESCE($3, is_create),
+		is_read = COALESCE($4, is_read),
+		is_update = COALESCE($5, is_update),
+		is_delete = COALESCE($6, is_delete),
+		is_public = COALESCE($7, is_public)
 	WHERE id = $1
-	RETURNING id, name, created_at, updated_at`
+	RETURNING id, name, is_create, is_read, is_update, is_delete, is_public, created_at, updated_at`
 
 	row := q.db.QueryRowContext(c, query,
 		decryptedID,
 		arg.Name,
+		arg.IsCreate,
+		arg.IsRead,
+		arg.IsUpdate,
+		arg.IsDelete,
+		arg.IsPublic,
 	)
 
 	err := row.Scan(
 		&r.HashedID,
 		&r.Name,
+		&r.IsCreate,
+		&r.IsRead,
+		&r.IsUpdate,
+		&r.IsDelete,
+		&r.IsPublic,
 		&r.CreatedAt,
 		&r.UpdatedAt,
 	)

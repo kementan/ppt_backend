@@ -4,6 +4,7 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/gigaflex-co/ppt_backend/config"
 	"github.com/gigaflex-co/ppt_backend/util"
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"
@@ -15,11 +16,12 @@ func NewHandler(router *gin.Engine) {
 	v1.GET("get-kafka", kfHandler)
 }
 
+var appConfig, _ = config.LoadConfig("./.")
 var upgrader = websocket.Upgrader{
 	ReadBufferSize:  1024,
 	WriteBufferSize: 1024,
 	CheckOrigin: func(r *http.Request) bool {
-		return r.Header.Get("Origin") == "http://localhost:4200"
+		return r.Header.Get("Origin") == appConfig.AllowOrigin
 	},
 }
 
