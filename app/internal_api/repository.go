@@ -10,6 +10,12 @@ import (
 type (
 	InternalApiRepository interface {
 		GetAll(c context.Context) ([]PptApiDataStorage, error)
+		GetToken(c context.Context, key string) (string, error)
+		StoreSIPDPSTanamFetch(c context.Context, res []SIPDPSTanam, id int) error
+		StoreSIPDPSProduktivitasFetch(c context.Context, res []SIPDPSProduktivitas, id int) error
+		StoreSIPDPSPusoFetch(c context.Context, res []SIPDPSPuso, id int) error
+		StoreSIPDPSPanenFetch(c context.Context, res []SIPDPSPanen, id int) error
+
 		StorePerbenihanProdusenFetch(c context.Context, res []PerbenihanData4, id int) error
 		StorePerbenihanRekNasFetch(c context.Context, res []PerbenihanData1, id int) error
 		StorePerbenihanRekBpsbFetch(c context.Context, res []PerbenihanData1, id int) error
@@ -79,6 +85,293 @@ func (q *repository) GetAll(c context.Context) ([]PptApiDataStorage, error) {
 		data = append(data, row)
 	}
 	return data, nil
+}
+
+func (q *repository) GetToken(c context.Context, key string) (string, error) {
+	query := "SELECT value FROM ppt_configurations WHERE name = $1"
+
+	// Execute the query and scan the result.
+	var value string
+	err := q.db.QueryRowContext(c, query, key).Scan(&value)
+	if err != nil {
+		return "", err
+	}
+
+	return value, nil
+}
+
+func (q *repository) StoreSIPDPSTanamFetch(c context.Context, res []SIPDPSTanam, id int) error {
+	deleteQuery := "DELETE FROM " + table + " WHERE identifier = $1"
+
+	_, err := q.db.Exec(deleteQuery, id)
+	if err != nil {
+		return err
+	}
+
+	numFields := 22
+	placeholders := make([]string, numFields)
+	columns := make([]string, numFields)
+	values := make([]interface{}, numFields+1)
+
+	for i := 0; i < numFields; i++ {
+		placeholders[i] = "$" + strconv.Itoa(i+2)
+		columns[i] = "f" + strconv.Itoa(i+1)
+	}
+
+	query := "INSERT INTO " + table + " (identifier, " + strings.Join(columns, ", ") + ") " +
+		"VALUES ($1, " + strings.Join(placeholders, ", ") + ")"
+
+	stmt, err := q.db.Prepare(query)
+	if err != nil {
+		return err
+	}
+	defer stmt.Close()
+
+	tx, err := q.db.Begin()
+	if err != nil {
+		return err
+	}
+
+	for _, item := range res {
+		values[0] = id
+		values[1] = item.NIPReporter
+		values[2] = item.NamaReporter
+		values[3] = item.TanggalLaporan
+		values[4] = item.TanggalKunjungan
+		values[5] = item.JenisKelompok
+		values[6] = item.NamaProvinsi
+		values[7] = item.NamaKabupaten
+		values[8] = item.NamaKecamatan
+		values[9] = item.NamaDesa
+		values[10] = item.KategoriLahan
+		values[11] = item.JenisLahan
+		values[12] = item.JenisTanamanPangan
+		values[13] = item.NamaVarietas
+		values[14] = item.JenisBantuan
+		values[15] = item.SumberBantuan
+		values[16] = item.TahunBantuan
+		values[17] = item.LuasArea
+		values[18] = item.HST
+		values[19] = item.Latitude
+		values[20] = item.Longitude
+		values[21] = item.Photos
+		values[22] = item.Status
+
+		_, err := tx.Stmt(stmt).Exec(values...)
+		if err != nil {
+			tx.Rollback()
+			return err
+		}
+	}
+
+	err = tx.Commit()
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (q *repository) StoreSIPDPSProduktivitasFetch(c context.Context, res []SIPDPSProduktivitas, id int) error {
+	deleteQuery := "DELETE FROM " + table + " WHERE identifier = $1"
+
+	_, err := q.db.Exec(deleteQuery, id)
+	if err != nil {
+		return err
+	}
+
+	numFields := 18
+	placeholders := make([]string, numFields)
+	columns := make([]string, numFields)
+	values := make([]interface{}, numFields+1)
+
+	for i := 0; i < numFields; i++ {
+		placeholders[i] = "$" + strconv.Itoa(i+2)
+		columns[i] = "f" + strconv.Itoa(i+1)
+	}
+
+	query := "INSERT INTO " + table + " (identifier, " + strings.Join(columns, ", ") + ") " +
+		"VALUES ($1, " + strings.Join(placeholders, ", ") + ")"
+
+	stmt, err := q.db.Prepare(query)
+	if err != nil {
+		return err
+	}
+	defer stmt.Close()
+
+	tx, err := q.db.Begin()
+	if err != nil {
+		return err
+	}
+
+	for _, item := range res {
+		values[0] = id
+		values[1] = item.NIPReporter
+		values[2] = item.NamaReporter
+		values[3] = item.TanggalLaporan
+		values[4] = item.TanggalKunjungan
+		values[5] = item.NamaProvinsi
+		values[6] = item.NamaKabupaten
+		values[7] = item.NamaKecamatan
+		values[8] = item.NamaDesa
+		values[9] = item.KategoriLahan
+		values[10] = item.JenisLahan
+		values[11] = item.JenisTanamanPangan
+		values[12] = item.TeknikPengukuran
+		values[13] = item.Jumlah
+		values[14] = item.Latitude
+		values[15] = item.Longitude
+		values[16] = item.Photos
+		values[17] = item.NamaVerifikator
+		values[18] = item.Status
+
+		_, err := tx.Stmt(stmt).Exec(values...)
+		if err != nil {
+			tx.Rollback()
+			return err
+		}
+	}
+
+	err = tx.Commit()
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (q *repository) StoreSIPDPSPusoFetch(c context.Context, res []SIPDPSPuso, id int) error {
+	deleteQuery := "DELETE FROM " + table + " WHERE identifier = $1"
+
+	_, err := q.db.Exec(deleteQuery, id)
+	if err != nil {
+		return err
+	}
+
+	numFields := 15
+	placeholders := make([]string, numFields)
+	columns := make([]string, numFields)
+	values := make([]interface{}, numFields+1)
+
+	for i := 0; i < numFields; i++ {
+		placeholders[i] = "$" + strconv.Itoa(i+2)
+		columns[i] = "f" + strconv.Itoa(i+1)
+	}
+
+	query := "INSERT INTO " + table + " (identifier, " + strings.Join(columns, ", ") + ") " +
+		"VALUES ($1, " + strings.Join(placeholders, ", ") + ")"
+
+	stmt, err := q.db.Prepare(query)
+	if err != nil {
+		return err
+	}
+	defer stmt.Close()
+
+	tx, err := q.db.Begin()
+	if err != nil {
+		return err
+	}
+
+	for _, item := range res {
+		values[0] = id
+		values[1] = item.NIPReporter
+		values[2] = item.NamaReporter
+		values[3] = item.TanggalLaporan
+		values[4] = item.TanggalKejadian
+		values[5] = item.NamaProvinsi
+		values[6] = item.NamaKabupaten
+		values[7] = item.NamaKecamatan
+		values[8] = item.NamaDesa
+		values[9] = item.JenisTanamanPangan
+		values[10] = item.PenyebabPuso
+		values[11] = item.Latitude
+		values[12] = item.Longitude
+		values[13] = item.Photos
+		values[14] = item.NamaVerifikator
+		values[15] = item.Status
+
+		_, err := tx.Stmt(stmt).Exec(values...)
+		if err != nil {
+			tx.Rollback()
+			return err
+		}
+	}
+
+	err = tx.Commit()
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (q *repository) StoreSIPDPSPanenFetch(c context.Context, res []SIPDPSPanen, id int) error {
+	deleteQuery := "DELETE FROM " + table + " WHERE identifier = $1"
+
+	_, err := q.db.Exec(deleteQuery, id)
+	if err != nil {
+		return err
+	}
+
+	numFields := 19
+	placeholders := make([]string, numFields)
+	columns := make([]string, numFields)
+	values := make([]interface{}, numFields+1)
+
+	for i := 0; i < numFields; i++ {
+		placeholders[i] = "$" + strconv.Itoa(i+2)
+		columns[i] = "f" + strconv.Itoa(i+1)
+	}
+
+	query := "INSERT INTO " + table + " (identifier, " + strings.Join(columns, ", ") + ") " +
+		"VALUES ($1, " + strings.Join(placeholders, ", ") + ")"
+
+	stmt, err := q.db.Prepare(query)
+	if err != nil {
+		return err
+	}
+	defer stmt.Close()
+
+	tx, err := q.db.Begin()
+	if err != nil {
+		return err
+	}
+
+	for _, item := range res {
+		values[0] = id
+		values[1] = item.NIPReporter
+		values[2] = item.NamaReporter
+		values[3] = item.TanggalLaporan
+		values[4] = item.TanggalKunjungan
+		values[5] = item.NamaProvinsi
+		values[6] = item.NamaKabupaten
+		values[7] = item.NamaKecamatan
+		values[8] = item.NamaDesa
+		values[9] = item.JenisTanamanPangan
+		values[10] = item.NamaVarietas
+		values[11] = item.KategoriPengelola
+		values[12] = item.NamaPengelola
+		values[13] = item.Luas
+		values[14] = item.Perkiraan
+		values[15] = item.Latitude
+		values[16] = item.Longitude
+		values[17] = item.Photos
+		values[18] = item.NamaVerifikator
+		values[19] = item.Status
+
+		_, err := tx.Stmt(stmt).Exec(values...)
+		if err != nil {
+			tx.Rollback()
+			return err
+		}
+	}
+
+	err = tx.Commit()
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func (q *repository) StorePerbenihanProdusenFetch(c context.Context, res []PerbenihanData4, id int) error {

@@ -14,8 +14,8 @@ import (
 func NewHandler(router *gin.Engine, rdb *redis.Client) {
 	v1 := router.Group("/v1")
 
-	// v1.GET("enc_dec", util.AuthMiddleware(rdb), EncDec) use this for production
-	v1.GET("enc-dec", EncDec)
+	v1.GET("enc_dec", util.AuthMiddleware(rdb), EncDec)
+	// v1.GET("enc-dec", EncDec)
 }
 
 func EncDec(c *gin.Context) {

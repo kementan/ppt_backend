@@ -67,9 +67,15 @@ func (uc *usecase) GetAll(c *gin.Context) {
 }
 
 func (uc *usecase) GetSIPDPSTanamFetch(c *gin.Context) {
+	token, err := uc.repo.GetToken(c, "api_token_sipdps_jawa_barat")
+	if err != nil {
+		util.JERR(c, http.StatusInternalServerError, err)
+		return
+	}
+
 	response, err := resty.New().R().
+		SetHeader("Authorization", "Bearer "+token).
 		SetHeader("Content-Type", "application/json").
-		SetHeader("Authorization", "Bearer FE9C98E3B93FE119DB275F93C761D").
 		SetQueryParams(map[string]string{
 			"provinsi": "12",
 			"page":     "1",
@@ -82,26 +88,158 @@ func (uc *usecase) GetSIPDPSTanamFetch(c *gin.Context) {
 	}
 
 	if response.StatusCode() != http.StatusOK {
-		log.Printf("error %v | %v", response.StatusCode(), response)
+		log.Printf("error %v", response.StatusCode())
 		util.JERR(c, http.StatusInternalServerError, errors.New("error"))
 		return
 	}
 
-	responseBody := response.Body()
+	responseBytes := response.Body()
 
-	util.JOK(c, http.StatusOK, responseBody)
+	var res SIPDPS1
+	if err := json.Unmarshal(responseBytes, &res); err != nil {
+		util.JERR(c, http.StatusInternalServerError, err)
+		return
+	}
+
+	err = uc.repo.StoreSIPDPSTanamFetch(c, res.Data, 1)
+	if err != nil {
+		util.JERR(c, http.StatusInternalServerError, err)
+		return
+	}
+
+	util.JOK(c, http.StatusOK, "success")
 }
 
 func (uc *usecase) GetSIPDPSProduktivitasFetch(c *gin.Context) {
+	token, err := uc.repo.GetToken(c, "api_token_sipdps_jawa_barat")
+	if err != nil {
+		util.JERR(c, http.StatusInternalServerError, err)
+		return
+	}
 
+	response, err := resty.New().R().
+		SetHeader("Authorization", "Bearer "+token).
+		SetHeader("Content-Type", "application/json").
+		SetQueryParams(map[string]string{
+			"provinsi": "12",
+			"page":     "1",
+		}).
+		Get("https://api-splp.layanan.go.id/t/pertanian.go.id/TP-SIPDPS/1.0/v2/data-laporan-produktivitas")
+
+	if err != nil {
+		util.JERR(c, http.StatusInternalServerError, err)
+		return
+	}
+
+	if response.StatusCode() != http.StatusOK {
+		log.Printf("error %v", response.StatusCode())
+		util.JERR(c, http.StatusInternalServerError, errors.New("error"))
+		return
+	}
+
+	responseBytes := response.Body()
+
+	var res SIPDPS2
+	if err := json.Unmarshal(responseBytes, &res); err != nil {
+		util.JERR(c, http.StatusInternalServerError, err)
+		return
+	}
+
+	err = uc.repo.StoreSIPDPSProduktivitasFetch(c, res.Data, 2)
+	if err != nil {
+		util.JERR(c, http.StatusInternalServerError, err)
+		return
+	}
+
+	util.JOK(c, http.StatusOK, "success")
 }
 
 func (uc *usecase) GetSIPDPSPusoFetch(c *gin.Context) {
+	token, err := uc.repo.GetToken(c, "api_token_sipdps_jawa_barat")
+	if err != nil {
+		util.JERR(c, http.StatusInternalServerError, err)
+		return
+	}
 
+	response, err := resty.New().R().
+		SetHeader("Authorization", "Bearer "+token).
+		SetHeader("Content-Type", "application/json").
+		SetQueryParams(map[string]string{
+			"provinsi": "12",
+			"page":     "1",
+		}).
+		Get("https://api-splp.layanan.go.id/t/pertanian.go.id/TP-SIPDPS/1.0/v2/data-laporan-puso")
+
+	if err != nil {
+		util.JERR(c, http.StatusInternalServerError, err)
+		return
+	}
+
+	if response.StatusCode() != http.StatusOK {
+		log.Printf("error %v", response.StatusCode())
+		util.JERR(c, http.StatusInternalServerError, errors.New("error"))
+		return
+	}
+
+	responseBytes := response.Body()
+
+	var res SIPDPS3
+	if err := json.Unmarshal(responseBytes, &res); err != nil {
+		util.JERR(c, http.StatusInternalServerError, err)
+		return
+	}
+
+	err = uc.repo.StoreSIPDPSPusoFetch(c, res.Data, 3)
+	if err != nil {
+		util.JERR(c, http.StatusInternalServerError, err)
+		return
+	}
+
+	util.JOK(c, http.StatusOK, "success")
 }
 
 func (uc *usecase) GetSIPDPSPanenFetch(c *gin.Context) {
+	token, err := uc.repo.GetToken(c, "api_token_sipdps_jawa_barat")
+	if err != nil {
+		util.JERR(c, http.StatusInternalServerError, err)
+		return
+	}
 
+	response, err := resty.New().R().
+		SetHeader("Authorization", "Bearer "+token).
+		SetHeader("Content-Type", "application/json").
+		SetQueryParams(map[string]string{
+			"provinsi": "12",
+			"page":     "1",
+		}).
+		Get("https://api-splp.layanan.go.id/t/pertanian.go.id/TP-SIPDPS/1.0/v2/data-laporan-panen")
+
+	if err != nil {
+		util.JERR(c, http.StatusInternalServerError, err)
+		return
+	}
+
+	if response.StatusCode() != http.StatusOK {
+		log.Printf("error %v", response.StatusCode())
+		util.JERR(c, http.StatusInternalServerError, errors.New("error"))
+		return
+	}
+
+	responseBytes := response.Body()
+
+	var res SIPDPS4
+	if err := json.Unmarshal(responseBytes, &res); err != nil {
+		util.JERR(c, http.StatusInternalServerError, err)
+		return
+	}
+
+	err = uc.repo.StoreSIPDPSPanenFetch(c, res.Data, 4)
+	if err != nil {
+		util.JERR(c, http.StatusInternalServerError, err)
+		return
+	}
+
+	util.JOK(c, http.StatusOK, "success")
 }
 
 func (uc *usecase) GetSIPDPSTanam(c *gin.Context) {
@@ -121,10 +259,16 @@ func (uc *usecase) GetSIPDPSPanen(c *gin.Context) {
 }
 
 func (uc *usecase) GetPerbenihanProdusenFetch(c *gin.Context) {
+	token, err := uc.repo.GetToken(c, "api_token_perbenihan")
+	if err != nil {
+		util.JERR(c, http.StatusInternalServerError, err)
+		return
+	}
+
 	response, err := resty.New().R().
 		SetHeader("Content-Type", "application/json").
 		SetQueryParams(map[string]string{
-			"token": "06cece0ae227104dc4b4a63255cb725b",
+			"token": token,
 			"rekap": "seluruh",
 			"jenis": "produsen",
 		}).
@@ -159,10 +303,16 @@ func (uc *usecase) GetPerbenihanProdusenFetch(c *gin.Context) {
 }
 
 func (uc *usecase) GetPerbenihanRekNasFetch(c *gin.Context) {
+	token, err := uc.repo.GetToken(c, "api_token_perbenihan")
+	if err != nil {
+		util.JERR(c, http.StatusInternalServerError, err)
+		return
+	}
+
 	response, err := resty.New().R().
 		SetHeader("Content-Type", "application/json").
 		SetQueryParams(map[string]string{
-			"token": "06cece0ae227104dc4b4a63255cb725b",
+			"token": token,
 			"rekap": "rekapitulasi",
 			"jenis": "nasional",
 		}).
@@ -197,10 +347,16 @@ func (uc *usecase) GetPerbenihanRekNasFetch(c *gin.Context) {
 }
 
 func (uc *usecase) GetPerbenihanRekBpsbFetch(c *gin.Context) {
+	token, err := uc.repo.GetToken(c, "api_token_perbenihan")
+	if err != nil {
+		util.JERR(c, http.StatusInternalServerError, err)
+		return
+	}
+
 	response, err := resty.New().R().
 		SetHeader("Content-Type", "application/json").
 		SetQueryParams(map[string]string{
-			"token": "06cece0ae227104dc4b4a63255cb725b",
+			"token": token,
 			"rekap": "rekapitulasi",
 			"jenis": "bpsb",
 		}).
@@ -235,10 +391,16 @@ func (uc *usecase) GetPerbenihanRekBpsbFetch(c *gin.Context) {
 }
 
 func (uc *usecase) GetPerbenihanRekLssmFetch(c *gin.Context) {
+	token, err := uc.repo.GetToken(c, "api_token_perbenihan")
+	if err != nil {
+		util.JERR(c, http.StatusInternalServerError, err)
+		return
+	}
+
 	response, err := resty.New().R().
 		SetHeader("Content-Type", "application/json").
 		SetQueryParams(map[string]string{
-			"token": "06cece0ae227104dc4b4a63255cb725b",
+			"token": token,
 			"rekap": "rekapitulasi",
 			"jenis": "lssm",
 		}).
@@ -273,10 +435,16 @@ func (uc *usecase) GetPerbenihanRekLssmFetch(c *gin.Context) {
 }
 
 func (uc *usecase) GetPerbenihanRekPenyaluranFetch(c *gin.Context) {
+	token, err := uc.repo.GetToken(c, "api_token_perbenihan")
+	if err != nil {
+		util.JERR(c, http.StatusInternalServerError, err)
+		return
+	}
+
 	response, err := resty.New().R().
 		SetHeader("Content-Type", "application/json").
 		SetQueryParams(map[string]string{
-			"token": "06cece0ae227104dc4b4a63255cb725b",
+			"token": token,
 			"rekap": "rekapitulasi",
 			"jenis": "penyaluran",
 		}).
@@ -311,10 +479,16 @@ func (uc *usecase) GetPerbenihanRekPenyaluranFetch(c *gin.Context) {
 }
 
 func (uc *usecase) GetPerbenihanRekPenyebaranFetch(c *gin.Context) {
+	token, err := uc.repo.GetToken(c, "api_token_perbenihan")
+	if err != nil {
+		util.JERR(c, http.StatusInternalServerError, err)
+		return
+	}
+
 	response, err := resty.New().R().
 		SetHeader("Content-Type", "application/json").
 		SetQueryParams(map[string]string{
-			"token": "06cece0ae227104dc4b4a63255cb725b",
+			"token": token,
 			"rekap": "rekapitulasi",
 			"jenis": "penyebaran",
 		}).
@@ -349,10 +523,16 @@ func (uc *usecase) GetPerbenihanRekPenyebaranFetch(c *gin.Context) {
 }
 
 func (uc *usecase) GetPerbenihanRekProdusenFetch(c *gin.Context) {
+	token, err := uc.repo.GetToken(c, "api_token_perbenihan")
+	if err != nil {
+		util.JERR(c, http.StatusInternalServerError, err)
+		return
+	}
+
 	response, err := resty.New().R().
 		SetHeader("Content-Type", "application/json").
 		SetQueryParams(map[string]string{
-			"token": "06cece0ae227104dc4b4a63255cb725b",
+			"token": token,
 			"rekap": "rekapitulasi",
 			"jenis": "produsen",
 		}).

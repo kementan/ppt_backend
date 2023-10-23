@@ -23,32 +23,32 @@ func NewHandler(router *gin.Engine, usecase InternalApiUsecase, rdb *redis.Clien
 
 	// Fetching data and store into database
 	// SIPDPS
-	v1.GET("api-sipdps-laporan-tanam-fetch", handler.GetSIPDPSTanamFetch)
-	v1.GET("api-sipdps-laporan-produktivitas-fetch", handler.GetSIPDPSProduktivitasFetch)
-	v1.GET("api-sipdps-laporan-puso-fetch", handler.GetSIPDPSPusoFetch)
-	v1.GET("api-sipdps-laporan-panen-fetch", handler.GetSIPDPSPanenFetch)
+	v1.GET("api-sipdps-laporan-tanam-fetch", util.AuthMiddleware(rdb), handler.GetSIPDPSTanamFetch)
+	v1.GET("api-sipdps-laporan-produktivitas-fetch", util.AuthMiddleware(rdb), handler.GetSIPDPSProduktivitasFetch)
+	v1.GET("api-sipdps-laporan-puso-fetch", util.AuthMiddleware(rdb), handler.GetSIPDPSPusoFetch)
+	v1.GET("api-sipdps-laporan-panen-fetch", util.AuthMiddleware(rdb), handler.GetSIPDPSPanenFetch)
 	// PERBENIHAN
-	v1.GET("api-perbenihan-produsen-fetch", handler.GetPerbenihanProdusenFetch)
-	v1.GET("api-perbenihan-rek-nas-fetch", handler.GetPerbenihanRekNasFetch)
-	v1.GET("api-perbenihan-rek-bpsb-fetch", handler.GetPerbenihanRekBpsbFetch)
-	v1.GET("api-perbenihan-rek-lssm-fetch", handler.GetPerbenihanRekLssmFetch)
-	v1.GET("api-perbenihan-rek-penyaluran-fetch", handler.GetPerbenihanRekPenyaluranFetch)
-	v1.GET("api-perbenihan-rek-penyebaran-fetch", handler.GetPerbenihanRekPenyebaranFetch)
-	v1.GET("api-perbenihan-rek-produsen-fetch", handler.GetPerbenihanRekProdusenFetch)
+	v1.GET("api-perbenihan-produsen-fetch", util.AuthMiddleware(rdb), handler.GetPerbenihanProdusenFetch)
+	v1.GET("api-perbenihan-rek-nas-fetch", util.AuthMiddleware(rdb), handler.GetPerbenihanRekNasFetch)
+	v1.GET("api-perbenihan-rek-bpsb-fetch", util.AuthMiddleware(rdb), handler.GetPerbenihanRekBpsbFetch)
+	v1.GET("api-perbenihan-rek-lssm-fetch", util.AuthMiddleware(rdb), handler.GetPerbenihanRekLssmFetch)
+	v1.GET("api-perbenihan-rek-penyaluran-fetch", util.AuthMiddleware(rdb), handler.GetPerbenihanRekPenyaluranFetch)
+	v1.GET("api-perbenihan-rek-penyebaran-fetch", util.AuthMiddleware(rdb), handler.GetPerbenihanRekPenyebaranFetch)
+	v1.GET("api-perbenihan-rek-produsen-fetch", util.AuthMiddleware(rdb), handler.GetPerbenihanRekProdusenFetch)
 
 	// Menampilkan data yang telah di fetch
 	// SIPDPS
-	v1.GET("api-sipdps-laporan-tanam", handler.GetSIPDPSTanam)
-	v1.GET("api-sipdps-laporan-produktivitas", handler.GetSIPDPSProduktivitas)
-	v1.GET("api-sipdps-laporan-puso", handler.GetSIPDPSPuso)
-	v1.GET("api-sipdps-laporan-panen", handler.GetSIPDPSPanen)
+	v1.GET("api-sipdps-laporan-tanam", util.AuthMiddleware(rdb), handler.GetSIPDPSTanam)
+	v1.GET("api-sipdps-laporan-produktivitas", util.AuthMiddleware(rdb), handler.GetSIPDPSProduktivitas)
+	v1.GET("api-sipdps-laporan-puso", util.AuthMiddleware(rdb), handler.GetSIPDPSPuso)
+	v1.GET("api-sipdps-laporan-panen", util.AuthMiddleware(rdb), handler.GetSIPDPSPanen)
 	// PERBENIHAN
-	v1.GET("api-perbenihan-produsen", handler.GetPerbenihanProdusen)
-	v1.GET("api-perbenihan-rek-nas", handler.GetPerbenihanRekNas)
-	v1.GET("api-perbenihan-rek-bpsb", handler.GetPerbenihanRekBpsb)
-	v1.GET("api-perbenihan-rek-lssm", handler.GetPerbenihanRekLssm)
-	v1.GET("api-perbenihan-rek-penyaluran", handler.GetPerbenihanRekPenyaluran)
-	v1.GET("api-perbenihan-rek-penyebaran", handler.GetPerbenihanRekPenyebaran)
+	v1.GET("api-perbenihan-produsen", util.AuthMiddleware(rdb), handler.GetPerbenihanProdusen)
+	v1.GET("api-perbenihan-rek-nas", util.AuthMiddleware(rdb), handler.GetPerbenihanRekNas)
+	v1.GET("api-perbenihan-rek-bpsb", util.AuthMiddleware(rdb), handler.GetPerbenihanRekBpsb)
+	v1.GET("api-perbenihan-rek-lssm", util.AuthMiddleware(rdb), handler.GetPerbenihanRekLssm)
+	v1.GET("api-perbenihan-rek-penyaluran", util.AuthMiddleware(rdb), handler.GetPerbenihanRekPenyaluran)
+	v1.GET("api-perbenihan-rek-penyebaran", util.AuthMiddleware(rdb), handler.GetPerbenihanRekPenyebaran)
 
 	// Langsung hit pada API
 

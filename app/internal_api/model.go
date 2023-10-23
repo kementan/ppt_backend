@@ -161,4 +161,154 @@ type (
 		Note []string          `json:"note"`
 		Data []PerbenihanData4 `json:"data"`
 	}
+
+	// SIPDPS Tanam
+	SIPDPSTanam struct {
+		NIPReporter        interface{} `json:"nip_reporter"`
+		NamaReporter       interface{} `json:"nm_reporter"`
+		TanggalLaporan     interface{} `json:"tgl_lapor"`
+		TanggalKunjungan   interface{} `json:"tgl_kunjungan"`
+		JenisKelompok      interface{} `json:"jenis_kelompok"`
+		NamaProvinsi       interface{} `json:"nm_prov"`
+		NamaKabupaten      interface{} `json:"nm_kab"`
+		NamaKecamatan      interface{} `json:"nm_kec"`
+		NamaDesa           interface{} `json:"nm_desa"`
+		KategoriLahan      interface{} `json:"kategori_lahan"`
+		JenisLahan         interface{} `json:"jenis_lahan"`
+		JenisTanamanPangan interface{} `json:"jenis_tanaman_pangan"`
+		NamaVarietas       interface{} `json:"nm_varietas"`
+		JenisBantuan       interface{} `json:"jenis_bantuan"`
+		SumberBantuan      interface{} `json:"sumber_bantuan"`
+		TahunBantuan       interface{} `json:"tahun_bantuan"`
+		LuasArea           interface{} `json:"luas_area"`
+		HST                interface{} `json:"hst"`
+		Latitude           interface{} `json:"lat"`
+		Longitude          interface{} `json:"lng"`
+		Photos             interface{} `json:"photos"`
+		Status             interface{} `json:"status"`
+	}
+
+	// SIPDPS Produktivitas
+	SIPDPSProduktivitas struct {
+		NIPReporter        interface{} `json:"nip_reporter"`
+		NamaReporter       interface{} `json:"nm_reporter"`
+		TanggalLaporan     interface{} `json:"tgl_lapor"`
+		TanggalKunjungan   interface{} `json:"tgl_kunjungan"`
+		NamaProvinsi       interface{} `json:"nm_prov"`
+		NamaKabupaten      interface{} `json:"nm_kab"`
+		NamaKecamatan      interface{} `json:"nm_kec"`
+		NamaDesa           interface{} `json:"nm_desa"`
+		KategoriLahan      interface{} `json:"kategori_lahan"`
+		JenisLahan         interface{} `json:"jenis_lahan"`
+		JenisTanamanPangan interface{} `json:"jenis_tanaman_pangan"`
+		TeknikPengukuran   interface{} `json:"teknik_pengukuran"`
+		Jumlah             interface{} `json:"jumlah"`
+		Latitude           interface{} `json:"lat"`
+		Longitude          interface{} `json:"lng"`
+		Photos             interface{} `json:"photos"`
+		NamaVerifikator    interface{} `json:"nm_verifikator"`
+		Status             interface{} `json:"status"`
+	}
+
+	// SIPDPS Puso
+	SIPDPSPuso struct {
+		NIPReporter        interface{} `json:"nip_reporter"`
+		NamaReporter       interface{} `json:"nm_reporter"`
+		TanggalLaporan     interface{} `json:"tgl_lapor"`
+		TanggalKejadian    interface{} `json:"tgl_kejadian"`
+		NamaProvinsi       interface{} `json:"nm_prov"`
+		NamaKabupaten      interface{} `json:"nm_kab"`
+		NamaKecamatan      interface{} `json:"nm_kec"`
+		NamaDesa           interface{} `json:"nm_desa"`
+		JenisTanamanPangan interface{} `json:"jenis_tanaman_pangan"`
+		PenyebabPuso       interface{} `json:"penyebab_puso"`
+		Latitude           interface{} `json:"lat"`
+		Longitude          interface{} `json:"lng"`
+		Photos             interface{} `json:"photos"`
+		NamaVerifikator    interface{} `json:"nm_verifikator"`
+		Status             interface{} `json:"status"`
+	}
+
+	// SIPDPS Panen
+	SIPDPSPanen struct {
+		NIPReporter        interface{} `json:"nip_reporter"`
+		NamaReporter       interface{} `json:"nm_reporter"`
+		TanggalLaporan     interface{} `json:"tgl_lapor"`
+		TanggalKunjungan   interface{} `json:"tgl_kunjungan"`
+		NamaProvinsi       interface{} `json:"nm_prov"`
+		NamaKabupaten      interface{} `json:"nm_kab"`
+		NamaKecamatan      interface{} `json:"nm_kec"`
+		NamaDesa           interface{} `json:"nm_desa"`
+		JenisTanamanPangan interface{} `json:"jenis_tanaman_pangan"`
+		NamaVarietas       interface{} `json:"nm_varietas"`
+		KategoriPengelola  interface{} `json:"kategori_pengelola"`
+		NamaPengelola      interface{} `json:"nama_pengelola"`
+		Luas               interface{} `json:"luas"`
+		Perkiraan          interface{} `json:"perkiraan"`
+		Latitude           interface{} `json:"lat"`
+		Longitude          interface{} `json:"lng"`
+		Photos             interface{} `json:"photos"`
+		NamaVerifikator    interface{} `json:"nm_verifikator"`
+		Status             interface{} `json:"status"`
+	}
+
+	SIPDPS1 struct {
+		CurrentPage  int           `json:"current_page"`
+		Data         []SIPDPSTanam `json:"data"`
+		FirstPageURL string        `json:"first_page_url"`
+		From         int           `json:"from"`
+		LastPage     int           `json:"last_page"`
+		LastPageURL  string        `json:"last_page_url"`
+		NextPageURL  string        `json:"next_page_url"`
+		Path         string        `json:"path"`
+		PerPage      int           `json:"per_page"`
+		PrevPageURL  string        `json:"prev_page_url"`
+		To           int           `json:"to"`
+		Total        int           `json:"total"`
+	}
+
+	SIPDPS2 struct {
+		CurrentPage  int                   `json:"current_page"`
+		Data         []SIPDPSProduktivitas `json:"data"`
+		FirstPageURL string                `json:"first_page_url"`
+		From         int                   `json:"from"`
+		LastPage     int                   `json:"last_page"`
+		LastPageURL  string                `json:"last_page_url"`
+		NextPageURL  string                `json:"next_page_url"`
+		Path         string                `json:"path"`
+		PerPage      int                   `json:"per_page"`
+		PrevPageURL  string                `json:"prev_page_url"`
+		To           int                   `json:"to"`
+		Total        int                   `json:"total"`
+	}
+
+	SIPDPS3 struct {
+		CurrentPage  int          `json:"current_page"`
+		Data         []SIPDPSPuso `json:"data"`
+		FirstPageURL string       `json:"first_page_url"`
+		From         int          `json:"from"`
+		LastPage     int          `json:"last_page"`
+		LastPageURL  string       `json:"last_page_url"`
+		NextPageURL  string       `json:"next_page_url"`
+		Path         string       `json:"path"`
+		PerPage      int          `json:"per_page"`
+		PrevPageURL  string       `json:"prev_page_url"`
+		To           int          `json:"to"`
+		Total        int          `json:"total"`
+	}
+
+	SIPDPS4 struct {
+		CurrentPage  int           `json:"current_page"`
+		Data         []SIPDPSPanen `json:"data"`
+		FirstPageURL string        `json:"first_page_url"`
+		From         int           `json:"from"`
+		LastPage     int           `json:"last_page"`
+		LastPageURL  string        `json:"last_page_url"`
+		NextPageURL  string        `json:"next_page_url"`
+		Path         string        `json:"path"`
+		PerPage      int           `json:"per_page"`
+		PrevPageURL  string        `json:"prev_page_url"`
+		To           int           `json:"to"`
+		Total        int           `json:"total"`
+	}
 )
