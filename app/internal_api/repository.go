@@ -5,6 +5,8 @@ import (
 	"database/sql"
 	"strconv"
 	"strings"
+
+	"github.com/gigaflex-co/ppt_backend/util"
 )
 
 type (
@@ -23,6 +25,21 @@ type (
 		StorePerbenihanRekPenyaluranFetch(c context.Context, res []PerbenihanData2, id int) error
 		StorePerbenihanRekPenyebaranFetch(c context.Context, res []PerbenihanData3, id int) error
 		StorePerbenihanRekProdusenFetch(c context.Context, res []PerbenihanData4, id int) error
+
+		CountRecords(c context.Context, arg util.DataFilter, id string) (int, error)
+
+		SIPDPSTanamRead(c context.Context, id int) ([]SIPDPSTanam, error)
+		SIPDPSProduktivitasRead(c context.Context, id int) ([]SIPDPSProduktivitas, error)
+		SIPDPSPusoRead(c context.Context, id int) ([]SIPDPSPuso, error)
+		SIPDPSPanenRead(c context.Context, id int) ([]SIPDPSPanen, error)
+
+		PerbenihanProdusenRead(c context.Context, id int) ([]PerbenihanData4, error)
+		PerbenihanRekNasRead(c context.Context, id int) ([]PerbenihanData1, error)
+		PerbenihanRekBpsbRead(c context.Context, id int) ([]PerbenihanData1, error)
+		PerbenihanRekLssmRead(c context.Context, id int) ([]PerbenihanData1, error)
+		PerbenihanRekPenyaluranRead(c context.Context, id int) ([]PerbenihanData2, error)
+		PerbenihanRekPenyebaranRead(c context.Context, id int) ([]PerbenihanData3, error)
+		PerbenihanRekProdusenRead(c context.Context, id int) ([]PerbenihanData4, error)
 	}
 
 	repository struct {
@@ -382,7 +399,7 @@ func (q *repository) StorePerbenihanProdusenFetch(c context.Context, res []Perbe
 		return err
 	}
 
-	numFields := 21
+	numFields := 22
 	placeholders := make([]string, numFields)
 	columns := make([]string, numFields)
 	values := make([]interface{}, numFields+1)
@@ -408,27 +425,28 @@ func (q *repository) StorePerbenihanProdusenFetch(c context.Context, res []Perbe
 
 	for _, item := range res {
 		values[0] = id
-		values[1] = item.KODE_PROVINSI
-		values[2] = item.PROVINSI
-		values[3] = item.KABUPATENKOTA
-		values[4] = item.KECAMATAN
-		values[5] = item.KELURAHAN
-		values[6] = item.USERNAME
-		values[7] = item.IDSIMLUH
-		values[8] = item.NOMOR_REGISTRASI
-		values[9] = item.TIPE_PRODUSEN
-		values[10] = item.NAMA
-		values[11] = item.NAMA_PIMPINAN
-		values[12] = item.ALAMAT_PIMPINAN
-		values[13] = item.ALAMAT_PRODUSEN
-		values[14] = item.TELEPON
-		values[15] = item.EMAIL
-		values[16] = item.BENIH
-		values[17] = item.TOTAL_LUAS_LAHAN
-		values[18] = item.LAT
-		values[19] = item.LNG
-		values[20] = item.DICATAT
-		values[21] = item.DIPERBARUI
+		values[1] = item.NO
+		values[2] = item.KODE_PROVINSI
+		values[3] = item.PROVINSI
+		values[4] = item.KABUPATENKOTA
+		values[5] = item.KECAMATAN
+		values[6] = item.KELURAHAN
+		values[7] = item.USERNAME
+		values[8] = item.IDSIMLUH
+		values[9] = item.NOMOR_REGISTRASI
+		values[10] = item.TIPE_PRODUSEN
+		values[11] = item.NAMA
+		values[12] = item.NAMA_PIMPINAN
+		values[13] = item.ALAMAT_PIMPINAN
+		values[14] = item.ALAMAT_PRODUSEN
+		values[15] = item.TELEPON
+		values[16] = item.EMAIL
+		values[17] = item.BENIH
+		values[18] = item.TOTAL_LUAS_LAHAN
+		values[19] = item.LAT
+		values[20] = item.LNG
+		values[21] = item.DICATAT
+		values[22] = item.DIPERBARUI
 
 		_, err := tx.Stmt(stmt).Exec(values...)
 		if err != nil {
@@ -453,7 +471,7 @@ func (q *repository) StorePerbenihanRekNasFetch(c context.Context, res []Perbeni
 		return err
 	}
 
-	numFields := 10
+	numFields := 11
 	placeholders := make([]string, numFields)
 	columns := make([]string, numFields)
 	values := make([]interface{}, numFields+1)
@@ -479,16 +497,17 @@ func (q *repository) StorePerbenihanRekNasFetch(c context.Context, res []Perbeni
 
 	for _, item := range res {
 		values[0] = id
-		values[1] = item.JENIS
-		values[2] = item.PROVINSI
-		values[3] = item.JENIS_BENIH
-		values[4] = item.KELAS_BENIH
-		values[5] = item.VARIETAS
-		values[6] = item.REALISASI_LUAS
-		values[7] = item.REALISASI_PRODUKSI
-		values[8] = item.VOLUME
-		values[9] = item.DICATAT
-		values[10] = item.DIPERBARUI
+		values[1] = item.NO
+		values[2] = item.JENIS
+		values[3] = item.PROVINSI
+		values[4] = item.JENIS_BENIH
+		values[5] = item.KELAS_BENIH
+		values[6] = item.VARIETAS
+		values[7] = item.REALISASI_LUAS
+		values[8] = item.REALISASI_PRODUKSI
+		values[9] = item.VOLUME
+		values[10] = item.DICATAT
+		values[11] = item.DIPERBARUI
 
 		_, err := tx.Stmt(stmt).Exec(values...)
 		if err != nil {
@@ -513,7 +532,7 @@ func (q *repository) StorePerbenihanRekBpsbFetch(c context.Context, res []Perben
 		return err
 	}
 
-	numFields := 10
+	numFields := 11
 	placeholders := make([]string, numFields)
 	columns := make([]string, numFields)
 	values := make([]interface{}, numFields+1)
@@ -539,16 +558,17 @@ func (q *repository) StorePerbenihanRekBpsbFetch(c context.Context, res []Perben
 
 	for _, item := range res {
 		values[0] = id
-		values[1] = item.JENIS
-		values[2] = item.PROVINSI
-		values[3] = item.JENIS_BENIH
-		values[4] = item.KELAS_BENIH
-		values[5] = item.VARIETAS
-		values[6] = item.REALISASI_LUAS
-		values[7] = item.REALISASI_PRODUKSI
-		values[8] = item.VOLUME
-		values[9] = item.DICATAT
-		values[10] = item.DIPERBARUI
+		values[1] = item.NO
+		values[2] = item.JENIS
+		values[3] = item.PROVINSI
+		values[4] = item.JENIS_BENIH
+		values[5] = item.KELAS_BENIH
+		values[6] = item.VARIETAS
+		values[7] = item.REALISASI_LUAS
+		values[8] = item.REALISASI_PRODUKSI
+		values[9] = item.VOLUME
+		values[10] = item.DICATAT
+		values[11] = item.DIPERBARUI
 
 		_, err := tx.Stmt(stmt).Exec(values...)
 		if err != nil {
@@ -573,7 +593,7 @@ func (q *repository) StorePerbenihanRekLssmFetch(c context.Context, res []Perben
 		return err
 	}
 
-	numFields := 10
+	numFields := 11
 	placeholders := make([]string, numFields)
 	columns := make([]string, numFields)
 	values := make([]interface{}, numFields+1)
@@ -599,16 +619,17 @@ func (q *repository) StorePerbenihanRekLssmFetch(c context.Context, res []Perben
 
 	for _, item := range res {
 		values[0] = id
-		values[1] = item.JENIS
-		values[2] = item.PROVINSI
-		values[3] = item.JENIS_BENIH
-		values[4] = item.KELAS_BENIH
-		values[5] = item.VARIETAS
-		values[6] = item.REALISASI_LUAS
-		values[7] = item.REALISASI_PRODUKSI
-		values[8] = item.VOLUME
-		values[9] = item.DICATAT
-		values[10] = item.DIPERBARUI
+		values[1] = item.NO
+		values[2] = item.JENIS
+		values[3] = item.PROVINSI
+		values[4] = item.JENIS_BENIH
+		values[5] = item.KELAS_BENIH
+		values[6] = item.VARIETAS
+		values[7] = item.REALISASI_LUAS
+		values[8] = item.REALISASI_PRODUKSI
+		values[9] = item.VOLUME
+		values[10] = item.DICATAT
+		values[11] = item.DIPERBARUI
 
 		_, err := tx.Stmt(stmt).Exec(values...)
 		if err != nil {
@@ -626,6 +647,144 @@ func (q *repository) StorePerbenihanRekLssmFetch(c context.Context, res []Perben
 }
 
 func (q *repository) StorePerbenihanRekPenyaluranFetch(c context.Context, res []PerbenihanData2, id int) error {
+	deleteQuery := "DELETE FROM " + table + " WHERE identifier = $1"
+
+	_, err := q.db.Exec(deleteQuery, id)
+	if err != nil {
+		return err
+	}
+
+	numFields := 23
+	placeholders := make([]string, numFields)
+	columns := make([]string, numFields)
+	values := make([]interface{}, numFields+1)
+
+	for i := 0; i < numFields; i++ {
+		placeholders[i] = "$" + strconv.Itoa(i+2)
+		columns[i] = "f" + strconv.Itoa(i+1)
+	}
+
+	query := "INSERT INTO " + table + " (identifier, " + strings.Join(columns, ", ") + ") " +
+		"VALUES ($1, " + strings.Join(placeholders, ", ") + ")"
+
+	stmt, err := q.db.Prepare(query)
+	if err != nil {
+		return err
+	}
+	defer stmt.Close()
+
+	tx, err := q.db.Begin()
+	if err != nil {
+		return err
+	}
+
+	for _, item := range res {
+		values[0] = id
+		values[1] = item.NO
+		values[2] = item.TAHUN
+		values[3] = item.BULAN
+		values[4] = item.PROVINSI
+		values[5] = item.KABUPATENKOTA
+		values[6] = item.KECAMATAN
+		values[7] = item.PRODUSEN_BENIH
+		values[8] = item.KELAS_BENIH
+		values[9] = item.KOMODITI
+		values[10] = item.VARIETAS
+		values[11] = item.STOK_LALU
+		values[12] = item.PRODUKSI_BENIH
+		values[13] = item.PENGADAAN
+		values[14] = item.JUMLAH_STOK
+		values[15] = item.PENYALURAN
+		values[16] = item.APBN
+		values[17] = item.APBD
+		values[18] = item.FREE_MARKET
+		values[19] = item.JUMLAH_SALUR
+		values[20] = item.TOTAL
+		values[21] = item.SISA_STOK
+		values[22] = item.DICATAT
+		values[23] = item.DIPERBARUI
+
+		_, err := tx.Stmt(stmt).Exec(values...)
+		if err != nil {
+			tx.Rollback()
+			return err
+		}
+	}
+
+	err = tx.Commit()
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (q *repository) StorePerbenihanRekPenyebaranFetch(c context.Context, res []PerbenihanData3, id int) error {
+	deleteQuery := "DELETE FROM " + table + " WHERE identifier = $1"
+
+	_, err := q.db.Exec(deleteQuery, id)
+	if err != nil {
+		return err
+	}
+
+	numFields := 15
+	placeholders := make([]string, numFields)
+	columns := make([]string, numFields)
+	values := make([]interface{}, numFields+1)
+
+	for i := 0; i < numFields; i++ {
+		placeholders[i] = "$" + strconv.Itoa(i+2)
+		columns[i] = "f" + strconv.Itoa(i+1)
+	}
+
+	query := "INSERT INTO " + table + " (identifier, " + strings.Join(columns, ", ") + ") " +
+		"VALUES ($1, " + strings.Join(placeholders, ", ") + ")"
+
+	stmt, err := q.db.Prepare(query)
+	if err != nil {
+		return err
+	}
+	defer stmt.Close()
+
+	tx, err := q.db.Begin()
+	if err != nil {
+		return err
+	}
+
+	for _, item := range res {
+		values[0] = id
+		values[1] = item.NO
+		values[2] = item.TAHUN
+		values[3] = item.BULAN
+		values[4] = item.PROVINSI
+		values[5] = item.KABUPATENKOTA
+		values[6] = item.KECAMATAN
+		values[7] = item.KELURAHAN
+		values[8] = item.PETA
+		values[9] = item.REALISASI_TANAM_LUAS
+		values[10] = item.BENIH
+		values[11] = item.JENIS_BENIH
+		values[12] = item.VARIETAS
+		values[13] = item.TOTAL_LUAS
+		values[14] = item.DICATAT
+		values[15] = item.DIPERBARUI
+
+		_, err := tx.Stmt(stmt).Exec(values...)
+		if err != nil {
+			tx.Rollback()
+			return err
+		}
+	}
+
+	err = tx.Commit()
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (q *repository) StorePerbenihanRekProdusenFetch(c context.Context, res []PerbenihanData4, id int) error {
 	deleteQuery := "DELETE FROM " + table + " WHERE identifier = $1"
 
 	_, err := q.db.Exec(deleteQuery, id)
@@ -659,26 +818,26 @@ func (q *repository) StorePerbenihanRekPenyaluranFetch(c context.Context, res []
 
 	for _, item := range res {
 		values[0] = id
-		values[1] = item.TAHUN
-		values[2] = item.BULAN
+		values[1] = item.NO
+		values[2] = item.KODE_PROVINSI
 		values[3] = item.PROVINSI
 		values[4] = item.KABUPATENKOTA
 		values[5] = item.KECAMATAN
-		values[6] = item.PRODUSEN_BENIH
-		values[7] = item.KELAS_BENIH
-		values[8] = item.KOMODITI
-		values[9] = item.VARIETAS
-		values[10] = item.STOK_LALU
-		values[11] = item.PRODUKSI_BENIH
-		values[12] = item.PENGADAAN
-		values[13] = item.JUMLAH_STOK
-		values[14] = item.PENYALURAN
-		values[15] = item.APBN
-		values[16] = item.APBD
-		values[17] = item.FREE_MARKET
-		values[18] = item.JUMLAH_SALUR
-		values[19] = item.TOTAL
-		values[20] = item.SISA_STOK
+		values[6] = item.KELURAHAN
+		values[7] = item.USERNAME
+		values[8] = item.IDSIMLUH
+		values[9] = item.NOMOR_REGISTRASI
+		values[10] = item.TIPE_PRODUSEN
+		values[11] = item.NAMA
+		values[12] = item.NAMA_PIMPINAN
+		values[13] = item.ALAMAT_PIMPINAN
+		values[14] = item.ALAMAT_PRODUSEN
+		values[15] = item.TELEPON
+		values[16] = item.EMAIL
+		values[17] = item.BENIH
+		values[18] = item.TOTAL_LUAS_LAHAN
+		values[19] = item.LAT
+		values[20] = item.LNG
 		values[21] = item.DICATAT
 		values[22] = item.DIPERBARUI
 
@@ -697,137 +856,661 @@ func (q *repository) StorePerbenihanRekPenyaluranFetch(c context.Context, res []
 	return nil
 }
 
-func (q *repository) StorePerbenihanRekPenyebaranFetch(c context.Context, res []PerbenihanData3, id int) error {
-	deleteQuery := "DELETE FROM " + table + " WHERE identifier = $1"
+func (q *repository) CountRecords(c context.Context, arg util.DataFilter, id string) (int, error) {
+	args := make([]interface{}, 0)
+	query := `SELECT COUNT(*) FROM ` + table + ``
 
-	_, err := q.db.Exec(deleteQuery, id)
-	if err != nil {
-		return err
+	if arg.Search != "" {
+		query += ` WHERE lower(` + table + `.name) LIKE CONCAT('%%',$1::text,'%%')`
+		args = append(args, arg.Search)
 	}
 
-	numFields := 14
-	placeholders := make([]string, numFields)
-	columns := make([]string, numFields)
-	values := make([]interface{}, numFields+1)
+	query += ` AND identifier = ` + id + ``
 
-	for i := 0; i < numFields; i++ {
-		placeholders[i] = "$" + strconv.Itoa(i+2)
-		columns[i] = "f" + strconv.Itoa(i+1)
+	var totalRecords int
+	if err := q.db.QueryRowContext(c, query, args...).Scan(&totalRecords); err != nil {
+		return 0, err
 	}
 
-	query := "INSERT INTO " + table + " (identifier, " + strings.Join(columns, ", ") + ") " +
-		"VALUES ($1, " + strings.Join(placeholders, ", ") + ")"
-
-	stmt, err := q.db.Prepare(query)
-	if err != nil {
-		return err
-	}
-	defer stmt.Close()
-
-	tx, err := q.db.Begin()
-	if err != nil {
-		return err
-	}
-
-	for _, item := range res {
-		values[0] = id
-		values[1] = item.TAHUN
-		values[2] = item.BULAN
-		values[3] = item.PROVINSI
-		values[4] = item.KABUPATENKOTA
-		values[5] = item.KECAMATAN
-		values[6] = item.KELURAHAN
-		values[7] = item.PETA
-		values[8] = item.REALISASI_TANAM_LUAS
-		values[9] = item.BENIH
-		values[10] = item.JENIS_BENIH
-		values[11] = item.VARIETAS
-		values[12] = item.TOTAL_LUAS
-		values[13] = item.DICATAT
-		values[14] = item.DIPERBARUI
-
-		_, err := tx.Stmt(stmt).Exec(values...)
-		if err != nil {
-			tx.Rollback()
-			return err
-		}
-	}
-
-	err = tx.Commit()
-	if err != nil {
-		return err
-	}
-
-	return nil
+	return totalRecords, nil
 }
 
-func (q *repository) StorePerbenihanRekProdusenFetch(c context.Context, res []PerbenihanData4, id int) error {
-	deleteQuery := "DELETE FROM " + table + " WHERE identifier = $1"
+func (q *repository) SIPDPSTanamRead(c context.Context, id int) ([]SIPDPSTanam, error) {
+	columnNames := make([]string, 0, 22)
+	for i := 1; i <= 22; i++ {
+		columnNames = append(columnNames, "f"+strconv.Itoa(i))
+	}
 
-	_, err := q.db.Exec(deleteQuery, id)
+	selectedColumns := strings.Join(columnNames, ", ")
+
+	query := "SELECT " + selectedColumns + " FROM " + table + " WHERE identifier = $1 ORDER BY f3 DESC"
+
+	rows, err := q.db.QueryContext(c, query, id)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	numFields := 21
-	placeholders := make([]string, numFields)
-	columns := make([]string, numFields)
-	values := make([]interface{}, numFields+1)
+	defer rows.Close()
 
-	for i := 0; i < numFields; i++ {
-		placeholders[i] = "$" + strconv.Itoa(i+2)
-		columns[i] = "f" + strconv.Itoa(i+1)
-	}
+	items := []SIPDPSTanam{}
 
-	query := "INSERT INTO " + table + " (identifier, " + strings.Join(columns, ", ") + ") " +
-		"VALUES ($1, " + strings.Join(placeholders, ", ") + ")"
+	for rows.Next() {
+		var r SIPDPSTanam
 
-	stmt, err := q.db.Prepare(query)
-	if err != nil {
-		return err
-	}
-	defer stmt.Close()
-
-	tx, err := q.db.Begin()
-	if err != nil {
-		return err
-	}
-
-	for _, item := range res {
-		values[0] = id
-		values[1] = item.KODE_PROVINSI
-		values[2] = item.PROVINSI
-		values[3] = item.KABUPATENKOTA
-		values[4] = item.KECAMATAN
-		values[5] = item.KELURAHAN
-		values[6] = item.USERNAME
-		values[7] = item.IDSIMLUH
-		values[8] = item.NOMOR_REGISTRASI
-		values[9] = item.TIPE_PRODUSEN
-		values[10] = item.NAMA
-		values[11] = item.NAMA_PIMPINAN
-		values[12] = item.ALAMAT_PIMPINAN
-		values[13] = item.ALAMAT_PRODUSEN
-		values[14] = item.TELEPON
-		values[15] = item.EMAIL
-		values[16] = item.BENIH
-		values[17] = item.TOTAL_LUAS_LAHAN
-		values[18] = item.LAT
-		values[19] = item.LNG
-		values[20] = item.DICATAT
-		values[21] = item.DIPERBARUI
-
-		_, err := tx.Stmt(stmt).Exec(values...)
-		if err != nil {
-			tx.Rollback()
-			return err
+		if err := rows.Scan(
+			&r.NIPReporter,
+			&r.NamaReporter,
+			&r.TanggalLaporan,
+			&r.TanggalKunjungan,
+			&r.JenisKelompok,
+			&r.NamaProvinsi,
+			&r.NamaKabupaten,
+			&r.NamaKecamatan,
+			&r.NamaDesa,
+			&r.KategoriLahan,
+			&r.JenisLahan,
+			&r.JenisTanamanPangan,
+			&r.NamaVarietas,
+			&r.JenisBantuan,
+			&r.SumberBantuan,
+			&r.TahunBantuan,
+			&r.LuasArea,
+			&r.HST,
+			&r.Latitude,
+			&r.Longitude,
+			&r.Photos,
+			&r.Status,
+		); err != nil {
+			return nil, err
 		}
+
+		items = append(items, r)
 	}
 
-	err = tx.Commit()
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return items, nil
+}
+
+func (q *repository) SIPDPSProduktivitasRead(c context.Context, id int) ([]SIPDPSProduktivitas, error) {
+	columnNames := make([]string, 0, 18)
+	for i := 1; i <= 18; i++ {
+		columnNames = append(columnNames, "f"+strconv.Itoa(i))
+	}
+
+	selectedColumns := strings.Join(columnNames, ", ")
+
+	query := "SELECT " + selectedColumns + " FROM " + table + " WHERE identifier = $1 ORDER BY f3 DESC"
+
+	rows, err := q.db.QueryContext(c, query, id)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	return nil
+	defer rows.Close()
+
+	items := []SIPDPSProduktivitas{}
+
+	for rows.Next() {
+		var r SIPDPSProduktivitas
+
+		if err := rows.Scan(
+			&r.NIPReporter,
+			&r.NamaReporter,
+			&r.TanggalLaporan,
+			&r.TanggalKunjungan,
+			&r.NamaProvinsi,
+			&r.NamaKabupaten,
+			&r.NamaKecamatan,
+			&r.NamaDesa,
+			&r.KategoriLahan,
+			&r.JenisLahan,
+			&r.JenisTanamanPangan,
+			&r.TeknikPengukuran,
+			&r.Jumlah,
+			&r.Latitude,
+			&r.Longitude,
+			&r.Photos,
+			&r.NamaVerifikator,
+			&r.Status,
+		); err != nil {
+			return nil, err
+		}
+
+		items = append(items, r)
+	}
+
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return items, nil
+}
+
+func (q *repository) SIPDPSPusoRead(c context.Context, id int) ([]SIPDPSPuso, error) {
+	columnNames := make([]string, 0, 15)
+	for i := 1; i <= 15; i++ {
+		columnNames = append(columnNames, "f"+strconv.Itoa(i))
+	}
+
+	selectedColumns := strings.Join(columnNames, ", ")
+
+	query := "SELECT " + selectedColumns + " FROM " + table + " WHERE identifier = $1 ORDER BY f3 DESC"
+
+	rows, err := q.db.QueryContext(c, query, id)
+	if err != nil {
+		return nil, err
+	}
+
+	defer rows.Close()
+
+	items := []SIPDPSPuso{}
+
+	for rows.Next() {
+		var r SIPDPSPuso
+
+		if err := rows.Scan(
+			&r.NIPReporter,
+			&r.NamaReporter,
+			&r.TanggalLaporan,
+			&r.TanggalKejadian,
+			&r.NamaProvinsi,
+			&r.NamaKabupaten,
+			&r.NamaKecamatan,
+			&r.NamaDesa,
+			&r.JenisTanamanPangan,
+			&r.PenyebabPuso,
+			&r.Latitude,
+			&r.Longitude,
+			&r.Photos,
+			&r.NamaVerifikator,
+			&r.Status,
+		); err != nil {
+			return nil, err
+		}
+
+		items = append(items, r)
+	}
+
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return items, nil
+}
+
+func (q *repository) SIPDPSPanenRead(c context.Context, id int) ([]SIPDPSPanen, error) {
+	columnNames := make([]string, 0, 19)
+	for i := 1; i <= 19; i++ {
+		columnNames = append(columnNames, "f"+strconv.Itoa(i))
+	}
+
+	selectedColumns := strings.Join(columnNames, ", ")
+
+	query := "SELECT " + selectedColumns + " FROM " + table + " WHERE identifier = $1 ORDER BY f3 DESC"
+
+	rows, err := q.db.QueryContext(c, query, id)
+	if err != nil {
+		return nil, err
+	}
+
+	defer rows.Close()
+
+	items := []SIPDPSPanen{}
+
+	for rows.Next() {
+		var r SIPDPSPanen
+
+		if err := rows.Scan(
+			&r.NIPReporter,
+			&r.NamaReporter,
+			&r.TanggalLaporan,
+			&r.TanggalKunjungan,
+			&r.NamaProvinsi,
+			&r.NamaKabupaten,
+			&r.NamaKecamatan,
+			&r.NamaDesa,
+			&r.JenisTanamanPangan,
+			&r.NamaVarietas,
+			&r.KategoriPengelola,
+			&r.NamaPengelola,
+			&r.Luas,
+			&r.Perkiraan,
+			&r.Latitude,
+			&r.Longitude,
+			&r.Photos,
+			&r.NamaVerifikator,
+			&r.Status,
+		); err != nil {
+			return nil, err
+		}
+
+		items = append(items, r)
+	}
+
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return items, nil
+}
+
+func (q *repository) PerbenihanProdusenRead(c context.Context, id int) ([]PerbenihanData4, error) {
+	columnNames := make([]string, 0, 22)
+	for i := 1; i <= 22; i++ {
+		columnNames = append(columnNames, "f"+strconv.Itoa(i))
+	}
+
+	selectedColumns := strings.Join(columnNames, ", ")
+
+	query := "SELECT " + selectedColumns + " FROM " + table + " WHERE identifier = $1 AND LENGTH(f15) > 2 AND LENGTH(f15) < 15 AND f19 IS NOT NULL AND f20 IS NOT NULL ORDER BY f22 DESC LIMIT 1000"
+
+	rows, err := q.db.QueryContext(c, query, id)
+	if err != nil {
+		return nil, err
+	}
+
+	defer rows.Close()
+
+	items := []PerbenihanData4{}
+
+	for rows.Next() {
+		var r PerbenihanData4
+
+		if err := rows.Scan(
+			&r.NO,
+			&r.KODE_PROVINSI,
+			&r.PROVINSI,
+			&r.KABUPATENKOTA,
+			&r.KECAMATAN,
+			&r.KELURAHAN,
+			&r.USERNAME,
+			&r.IDSIMLUH,
+			&r.NOMOR_REGISTRASI,
+			&r.TIPE_PRODUSEN,
+			&r.NAMA,
+			&r.NAMA_PIMPINAN,
+			&r.ALAMAT_PIMPINAN,
+			&r.ALAMAT_PRODUSEN,
+			&r.TELEPON,
+			&r.EMAIL,
+			&r.BENIH,
+			&r.TOTAL_LUAS_LAHAN,
+			&r.LAT,
+			&r.LNG,
+			&r.DICATAT,
+			&r.DIPERBARUI,
+		); err != nil {
+			return nil, err
+		}
+
+		items = append(items, r)
+	}
+
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return items, nil
+}
+
+func (q *repository) PerbenihanRekNasRead(c context.Context, id int) ([]PerbenihanData1, error) {
+	columnNames := make([]string, 0, 11)
+	for i := 1; i <= 11; i++ {
+		columnNames = append(columnNames, "f"+strconv.Itoa(i))
+	}
+
+	selectedColumns := strings.Join(columnNames, ", ")
+
+	query := "SELECT " + selectedColumns + " FROM " + table + " WHERE identifier = $1 ORDER BY f11 DESC"
+
+	rows, err := q.db.QueryContext(c, query, id)
+	if err != nil {
+		return nil, err
+	}
+
+	defer rows.Close()
+
+	items := []PerbenihanData1{}
+
+	for rows.Next() {
+		var r PerbenihanData1
+
+		if err := rows.Scan(
+			&r.NO,
+			&r.JENIS,
+			&r.PROVINSI,
+			&r.JENIS_BENIH,
+			&r.KELAS_BENIH,
+			&r.VARIETAS,
+			&r.REALISASI_LUAS,
+			&r.REALISASI_PRODUKSI,
+			&r.VOLUME,
+			&r.DICATAT,
+			&r.DIPERBARUI,
+		); err != nil {
+			return nil, err
+		}
+
+		items = append(items, r)
+	}
+
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return items, nil
+}
+
+func (q *repository) PerbenihanRekBpsbRead(c context.Context, id int) ([]PerbenihanData1, error) {
+	columnNames := make([]string, 0, 11)
+	for i := 1; i <= 11; i++ {
+		columnNames = append(columnNames, "f"+strconv.Itoa(i))
+	}
+
+	selectedColumns := strings.Join(columnNames, ", ")
+
+	query := "SELECT " + selectedColumns + " FROM " + table + " WHERE identifier = $1 ORDER BY f11 DESC"
+
+	rows, err := q.db.QueryContext(c, query, id)
+	if err != nil {
+		return nil, err
+	}
+
+	defer rows.Close()
+
+	items := []PerbenihanData1{}
+
+	for rows.Next() {
+		var r PerbenihanData1
+
+		if err := rows.Scan(
+			&r.NO,
+			&r.JENIS,
+			&r.PROVINSI,
+			&r.JENIS_BENIH,
+			&r.KELAS_BENIH,
+			&r.VARIETAS,
+			&r.REALISASI_LUAS,
+			&r.REALISASI_PRODUKSI,
+			&r.VOLUME,
+			&r.DICATAT,
+			&r.DIPERBARUI,
+		); err != nil {
+			return nil, err
+		}
+
+		items = append(items, r)
+	}
+
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return items, nil
+}
+
+func (q *repository) PerbenihanRekLssmRead(c context.Context, id int) ([]PerbenihanData1, error) {
+	columnNames := make([]string, 0, 11)
+	for i := 1; i <= 11; i++ {
+		columnNames = append(columnNames, "f"+strconv.Itoa(i))
+	}
+
+	selectedColumns := strings.Join(columnNames, ", ")
+
+	query := "SELECT " + selectedColumns + " FROM " + table + " WHERE identifier = $1 ORDER BY f11 DESC"
+
+	rows, err := q.db.QueryContext(c, query, id)
+	if err != nil {
+		return nil, err
+	}
+
+	defer rows.Close()
+
+	items := []PerbenihanData1{}
+
+	for rows.Next() {
+		var r PerbenihanData1
+
+		if err := rows.Scan(
+			&r.NO,
+			&r.JENIS,
+			&r.PROVINSI,
+			&r.JENIS_BENIH,
+			&r.KELAS_BENIH,
+			&r.VARIETAS,
+			&r.REALISASI_LUAS,
+			&r.REALISASI_PRODUKSI,
+			&r.VOLUME,
+			&r.DICATAT,
+			&r.DIPERBARUI,
+		); err != nil {
+			return nil, err
+		}
+
+		items = append(items, r)
+	}
+
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return items, nil
+}
+
+func (q *repository) PerbenihanRekPenyaluranRead(c context.Context, id int) ([]PerbenihanData2, error) {
+	columnNames := make([]string, 0, 23)
+	for i := 1; i <= 23; i++ {
+		columnNames = append(columnNames, "f"+strconv.Itoa(i))
+	}
+
+	selectedColumns := strings.Join(columnNames, ", ")
+
+	query := "SELECT " + selectedColumns + " FROM " + table + " WHERE identifier = $1 ORDER BY f11 DESC"
+
+	rows, err := q.db.QueryContext(c, query, id)
+	if err != nil {
+		return nil, err
+	}
+
+	defer rows.Close()
+
+	items := []PerbenihanData2{}
+
+	for rows.Next() {
+		var r PerbenihanData2
+
+		if err := rows.Scan(
+			&r.NO,
+			&r.TAHUN,
+			&r.BULAN,
+			&r.PROVINSI,
+			&r.KABUPATENKOTA,
+			&r.KECAMATAN,
+			&r.PRODUSEN_BENIH,
+			&r.KELAS_BENIH,
+			&r.KOMODITI,
+			&r.VARIETAS,
+			&r.STOK_LALU,
+			&r.PRODUKSI_BENIH,
+			&r.PENGADAAN,
+			&r.JUMLAH_STOK,
+			&r.PENYALURAN,
+			&r.APBN,
+			&r.APBD,
+			&r.FREE_MARKET,
+			&r.JUMLAH_SALUR,
+			&r.TOTAL,
+			&r.SISA_STOK,
+			&r.DICATAT,
+			&r.DIPERBARUI,
+		); err != nil {
+			return nil, err
+		}
+
+		items = append(items, r)
+	}
+
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return items, nil
+}
+
+func (q *repository) PerbenihanRekPenyebaranRead(c context.Context, id int) ([]PerbenihanData3, error) {
+	columnNames := make([]string, 0, 15)
+	for i := 1; i <= 15; i++ {
+		columnNames = append(columnNames, "f"+strconv.Itoa(i))
+	}
+
+	selectedColumns := strings.Join(columnNames, ", ")
+
+	query := "SELECT " + selectedColumns + " FROM " + table + " WHERE identifier = $1 ORDER BY f11 DESC"
+
+	rows, err := q.db.QueryContext(c, query, id)
+	if err != nil {
+		return nil, err
+	}
+
+	defer rows.Close()
+
+	items := []PerbenihanData3{}
+
+	for rows.Next() {
+		var r PerbenihanData3
+
+		if err := rows.Scan(
+			&r.NO,
+			&r.TAHUN,
+			&r.BULAN,
+			&r.PROVINSI,
+			&r.KABUPATENKOTA,
+			&r.KECAMATAN,
+			&r.KELURAHAN,
+			&r.PETA,
+			&r.REALISASI_TANAM_LUAS,
+			&r.BENIH,
+			&r.JENIS_BENIH,
+			&r.VARIETAS,
+			&r.TOTAL_LUAS,
+			&r.DICATAT,
+			&r.DIPERBARUI,
+		); err != nil {
+			return nil, err
+		}
+
+		items = append(items, r)
+	}
+
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return items, nil
+}
+
+func (q *repository) PerbenihanRekProdusenRead(c context.Context, id int) ([]PerbenihanData4, error) {
+	columnNames := make([]string, 0, 22)
+	for i := 1; i <= 22; i++ {
+		columnNames = append(columnNames, "f"+strconv.Itoa(i))
+	}
+
+	selectedColumns := strings.Join(columnNames, ", ")
+
+	query := "SELECT " + selectedColumns + " FROM " + table + " WHERE identifier = $1 ORDER BY f11 DESC"
+
+	rows, err := q.db.QueryContext(c, query, id)
+	if err != nil {
+		return nil, err
+	}
+
+	defer rows.Close()
+
+	items := []PerbenihanData4{}
+
+	for rows.Next() {
+		var r PerbenihanData4
+
+		if err := rows.Scan(
+			&r.NO,
+			&r.KODE_PROVINSI,
+			&r.PROVINSI,
+			&r.KABUPATENKOTA,
+			&r.KECAMATAN,
+			&r.KELURAHAN,
+			&r.USERNAME,
+			&r.IDSIMLUH,
+			&r.NOMOR_REGISTRASI,
+			&r.TIPE_PRODUSEN,
+			&r.NAMA,
+			&r.NAMA_PIMPINAN,
+			&r.ALAMAT_PIMPINAN,
+			&r.ALAMAT_PRODUSEN,
+			&r.TELEPON,
+			&r.EMAIL,
+			&r.BENIH,
+			&r.TOTAL_LUAS_LAHAN,
+			&r.LAT,
+			&r.LNG,
+			&r.DICATAT,
+			&r.DIPERBARUI,
+		); err != nil {
+			return nil, err
+		}
+
+		items = append(items, r)
+	}
+
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return items, nil
 }

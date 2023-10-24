@@ -29,7 +29,7 @@ func NewHandler(router *gin.Engine, usecase InternalApiUsecase, rdb *redis.Clien
 	v1.GET("api-sipdps-laporan-panen-fetch", util.AuthMiddleware(rdb), handler.GetSIPDPSPanenFetch)
 	// PERBENIHAN
 	v1.GET("api-perbenihan-produsen-fetch", util.AuthMiddleware(rdb), handler.GetPerbenihanProdusenFetch)
-	v1.GET("api-perbenihan-rek-nas-fetch", util.AuthMiddleware(rdb), handler.GetPerbenihanRekNasFetch)
+	v1.GET("api-perbenihan-rek-nas-fetch", handler.GetPerbenihanRekNasFetch)
 	v1.GET("api-perbenihan-rek-bpsb-fetch", util.AuthMiddleware(rdb), handler.GetPerbenihanRekBpsbFetch)
 	v1.GET("api-perbenihan-rek-lssm-fetch", util.AuthMiddleware(rdb), handler.GetPerbenihanRekLssmFetch)
 	v1.GET("api-perbenihan-rek-penyaluran-fetch", util.AuthMiddleware(rdb), handler.GetPerbenihanRekPenyaluranFetch)
@@ -43,12 +43,13 @@ func NewHandler(router *gin.Engine, usecase InternalApiUsecase, rdb *redis.Clien
 	v1.GET("api-sipdps-laporan-puso", util.AuthMiddleware(rdb), handler.GetSIPDPSPuso)
 	v1.GET("api-sipdps-laporan-panen", util.AuthMiddleware(rdb), handler.GetSIPDPSPanen)
 	// PERBENIHAN
-	v1.GET("api-perbenihan-produsen", util.AuthMiddleware(rdb), handler.GetPerbenihanProdusen)
-	v1.GET("api-perbenihan-rek-nas", util.AuthMiddleware(rdb), handler.GetPerbenihanRekNas)
-	v1.GET("api-perbenihan-rek-bpsb", util.AuthMiddleware(rdb), handler.GetPerbenihanRekBpsb)
-	v1.GET("api-perbenihan-rek-lssm", util.AuthMiddleware(rdb), handler.GetPerbenihanRekLssm)
-	v1.GET("api-perbenihan-rek-penyaluran", util.AuthMiddleware(rdb), handler.GetPerbenihanRekPenyaluran)
-	v1.GET("api-perbenihan-rek-penyebaran", util.AuthMiddleware(rdb), handler.GetPerbenihanRekPenyebaran)
+	v1.GET("api-perbenihan-produsen", handler.GetPerbenihanProdusen)
+	v1.GET("api-perbenihan-rek-nas", handler.GetPerbenihanRekNas)
+	v1.GET("api-perbenihan-rek-bpsb", handler.GetPerbenihanRekBpsb)
+	v1.GET("api-perbenihan-rek-lssm", handler.GetPerbenihanRekLssm)
+	v1.GET("api-perbenihan-rek-penyaluran", handler.GetPerbenihanRekPenyaluran)
+	v1.GET("api-perbenihan-rek-penyebaran", handler.GetPerbenihanRekPenyebaran)
+	v1.GET("api-perbenihan-rek-produsen", handler.GetPerbenihanRekProdusen)
 
 	// Langsung hit pada API
 

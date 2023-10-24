@@ -1,6 +1,7 @@
 package internal_api
 
 import (
+	"database/sql"
 	"encoding/json"
 	"errors"
 	"log"
@@ -243,19 +244,43 @@ func (uc *usecase) GetSIPDPSPanenFetch(c *gin.Context) {
 }
 
 func (uc *usecase) GetSIPDPSTanam(c *gin.Context) {
+	data, err := uc.repo.SIPDPSTanamRead(c, 1)
+	if err != nil && err != sql.ErrNoRows {
+		util.JERR(c, http.StatusInternalServerError, err)
+		return
+	}
 
+	util.JOK(c, http.StatusOK, data)
 }
 
 func (uc *usecase) GetSIPDPSProduktivitas(c *gin.Context) {
+	data, err := uc.repo.SIPDPSProduktivitasRead(c, 2)
+	if err != nil && err != sql.ErrNoRows {
+		util.JERR(c, http.StatusInternalServerError, err)
+		return
+	}
 
+	util.JOK(c, http.StatusOK, data)
 }
 
 func (uc *usecase) GetSIPDPSPuso(c *gin.Context) {
+	data, err := uc.repo.SIPDPSPusoRead(c, 3)
+	if err != nil && err != sql.ErrNoRows {
+		util.JERR(c, http.StatusInternalServerError, err)
+		return
+	}
 
+	util.JOK(c, http.StatusOK, data)
 }
 
 func (uc *usecase) GetSIPDPSPanen(c *gin.Context) {
+	data, err := uc.repo.SIPDPSPanenRead(c, 4)
+	if err != nil && err != sql.ErrNoRows {
+		util.JERR(c, http.StatusInternalServerError, err)
+		return
+	}
 
+	util.JOK(c, http.StatusOK, data)
 }
 
 func (uc *usecase) GetPerbenihanProdusenFetch(c *gin.Context) {
@@ -567,31 +592,73 @@ func (uc *usecase) GetPerbenihanRekProdusenFetch(c *gin.Context) {
 }
 
 func (uc *usecase) GetPerbenihanProdusen(c *gin.Context) {
+	data, err := uc.repo.PerbenihanProdusenRead(c, 5)
+	if err != nil && err != sql.ErrNoRows {
+		util.JERR(c, http.StatusInternalServerError, err)
+		return
+	}
 
+	util.JOK(c, http.StatusOK, data)
 }
 
 func (uc *usecase) GetPerbenihanRekNas(c *gin.Context) {
+	data, err := uc.repo.PerbenihanRekNasRead(c, 6)
+	if err != nil {
+		util.JERR(c, http.StatusInternalServerError, err)
+		return
+	}
 
+	util.JOK(c, http.StatusOK, data)
 }
 
 func (uc *usecase) GetPerbenihanRekBpsb(c *gin.Context) {
+	data, err := uc.repo.PerbenihanRekBpsbRead(c, 7)
+	if err != nil {
+		util.JERR(c, http.StatusInternalServerError, err)
+		return
+	}
 
+	util.JOK(c, http.StatusOK, data)
 }
 
 func (uc *usecase) GetPerbenihanRekLssm(c *gin.Context) {
+	data, err := uc.repo.PerbenihanRekLssmRead(c, 8)
+	if err != nil {
+		util.JERR(c, http.StatusInternalServerError, err)
+		return
+	}
 
+	util.JOK(c, http.StatusOK, data)
 }
 
 func (uc *usecase) GetPerbenihanRekPenyaluran(c *gin.Context) {
+	data, err := uc.repo.PerbenihanRekPenyaluranRead(c, 9)
+	if err != nil {
+		util.JERR(c, http.StatusInternalServerError, err)
+		return
+	}
 
+	util.JOK(c, http.StatusOK, data)
 }
 
 func (uc *usecase) GetPerbenihanRekPenyebaran(c *gin.Context) {
+	data, err := uc.repo.PerbenihanRekPenyebaranRead(c, 10)
+	if err != nil {
+		util.JERR(c, http.StatusInternalServerError, err)
+		return
+	}
 
+	util.JOK(c, http.StatusOK, data)
 }
 
 func (uc *usecase) GetPerbenihanRekProdusen(c *gin.Context) {
+	data, err := uc.repo.PerbenihanRekProdusenRead(c, 11)
+	if err != nil {
+		util.JERR(c, http.StatusInternalServerError, err)
+		return
+	}
 
+	util.JOK(c, http.StatusOK, data)
 }
 
 // WOKRS, DONT TOUCH V
